@@ -13,11 +13,12 @@ x_sigma2 = hp['x_sigma2']
 learn_rate = hp['learn_rate']
 betas = hp['betas']
 
-            
+     
+Init_Name = 'MEGA_RUN'
 
 for lr in [0.01,0.005,0.001,0.0005]:
     for s in [0.5,0.9]:
-        name = 'bs_' + str(bs) + 'lr_' + str(lr) + s_' + str(s)
+        name = Init_Name + 'lr_' + str(lr) + 's_' + str(s)
         run_experiment(name, out_dir='./results', seed=42,
                         # Training params
                         bs_train=32, bs_test=None, batches=100, epochs=30,

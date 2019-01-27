@@ -160,7 +160,9 @@ class VAE(nn.Module):
         h = self.features_encoder(x)
         
         h = h.view(h.shape[0],-1)
-
+        
+        
+        print('x - ' , x.is_cuda)
         print('h - ' , h.is_cuda)
         print('Whu - ', self.Whu.is_cuda)
         print('Bhs - ', self.Bhs.is_cuda)

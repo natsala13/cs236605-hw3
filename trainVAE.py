@@ -92,7 +92,7 @@ im_size = ds_train[0][0].shape
 encoder = autoencoder.EncoderCNN(in_channels=im_size[0], out_channels=h_dim)
 decoder = autoencoder.DecoderCNN(in_channels=h_dim, out_channels=im_size[0])
 vae = autoencoder.VAE(encoder, decoder, im_size, z_dim)
-vae_dp = DataParallel(vae).to(device)
+# vae_dp = DataParallel(vae).to(device)
 
 # Optimizer
 optimizer = optim.Adam(vae.parameters(), lr=learn_rate, betas=betas)
@@ -102,7 +102,7 @@ def loss_fn(x, xr, z_mu, z_log_sigma2):
     return autoencoder.vae_loss(x, xr, z_mu, z_log_sigma2, x_sigma2)
 
 # Trainer
-trainer = VAETrainer(vae_dp, loss_fn, optimizer, device)
+trainer = VAETrainer(vae, loss_fn, optimizer, device)
 checkpoint_file = 'checkpoints/vae'
 checkpoint_file_final = f'{checkpoint_file}_final'
 if os.path.isfile(f'{checkpoint_file}.pt'):

@@ -6,7 +6,7 @@ print('Using device:', device)
 
 encoder = autoencoder.EncoderCNN(in_channels=3, out_channels=256)
 decoder = autoencoder.DecoderCNN(in_channels=256, out_channels=3)
-vae = autoencoder.VAE(encoder, decoder, (3,64,64), 5)
+vae = autoencoder.VAE(encoder, decoder, (3,64,64), 5).to(device)
 
 print(vae.Whu.is_cuda)
 

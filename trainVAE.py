@@ -6,6 +6,7 @@ import urllib
 import shutil
 import re
 import zipfile
+import json
 
 import numpy as np
 import torch
@@ -144,7 +145,6 @@ fit_res = trainer.fit(dl_train, dl_test,
 save_experiment('stam', 'results', locals(), fit_res)
 
 
-import json
 def save_experiment(run_name, out_dir, config, fit_res):
     output = dict(
         config=config,

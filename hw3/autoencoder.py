@@ -217,6 +217,9 @@ class VAE(nn.Module):
     def forward(self, x):
         z, mu, log_sigma2 = self.encode(x)
         return self.decode(z), mu, log_sigma2
+    
+    
+    def changeDe
 
 
 def vae_loss(x, xr, z_mu, z_log_sigma2, x_sigma2):

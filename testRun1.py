@@ -15,7 +15,7 @@ betas = hp['betas']
 
             
 
-for lr inm [0.01,0.005,0.001,0.0005]:
+for lr in [0.01,0.005,0.001,0.0005]:
     for s in [0.5,0.9]:
         name = 'bs_' + str(bs) + 'lr_' + str(lr) + s_' + str(s)
         run_experiment(name, out_dir='./results', seed=42,

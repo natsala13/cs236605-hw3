@@ -87,15 +87,15 @@ class Trainer(abc.ABC):
             # - Implement early stopping. This is a very useful and
             #   simple regularization technique that is highly recommended.
             # ====== YOUR CODE: ======
-            train_res = self.train_epoch(dl_train, **kw)
-            test_res = self.test_epoch(dl_test, **kw)
+            train_result = self.train_epoch(dl_train, **kw)
+            test_result = self.test_epoch(dl_test, **kw)
             
             
 
-            train_loss += [np.mean(train_res.losses)]
-            train_acc += [train_res.accuracy]
-            test_loss += [np.mean(test_res.losses)]
-            test_acc += [test_res.accuracy]
+            train_loss += [np.mean(train_result.losses)]
+            train_acc += [train_result.accuracy]
+            test_loss += [np.mean(test_result.losses)]
+            test_acc += [test_result.accuracy]
             # ========================
 
             # Save model checkpoint if requested

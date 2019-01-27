@@ -103,15 +103,8 @@ def loss_fn(x, xr, z_mu, z_log_sigma2):
 
 # Trainer
 trainer = VAETrainer(vae_dp, loss_fn, optimizer, device)
-checkpoint_file = 'checkpoints/vae'
-checkpoint_file_final = f'{checkpoint_file}_final'
-if os.path.isfile(f'{checkpoint_file}.pt'):
-    os.remove(f'{checkpoint_file}.pt')
 
 
-
-
-import IPython.display
 RESULT_DIR = 'results/'
 
 

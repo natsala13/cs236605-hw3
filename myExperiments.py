@@ -39,25 +39,9 @@ def run_experiment(run_name, out_dir='./results', seed=None,
         bs_test = max([bs_train // 4, 1])
     cfg = locals()
 
-    DATA_DIR = pathlib.Path.home().joinpath('.pytorch-datasets')
-    if CUSTOM_DATA_URL is None:
-        DATA_URL = 'http://vis-www.cs.umass.edu/lfw/lfw-bush.zip'
-    else:
-        DATA_URL = CUSTOM_DATA_URL
-    
-    _, dataset_dir = cs236605.download.download_data(out_path=DATA_DIR, url=DATA_URL, extract=True, force=False)
-    
-    im_size = 64
-    tf = T.Compose([
-                # Resize to constant spatial dimensions
-                T.Resize((im_size, im_size)),
-                # PIL.Image -> torch.Tensor
-                T.ToTensor(),
-                # Dynamic range [0,1] -> [-1, 1]
-                T.Normalize(mean=(.5,.5,.5), std=(.5,.5,.5)),
-                ])
-    
-    ds_gwb = ImageFolder(os.path.dirname(dataset_dir), tf)
+    tf = torchvision.transforms.ToTensor()
+    ds_train = CIFAR10(root=DATA_DIR, download=True, train=True, transform=tf)
+    ds_test = CIFAR10(root=DATA_DIR, download=True, train=False, transform=tf)
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 

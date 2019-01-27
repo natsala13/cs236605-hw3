@@ -161,8 +161,15 @@ class VAE(nn.Module):
         
         h = h.view(h.shape[0],-1)
 
+        print('h - ' , h.is_cuda)
+        print('Whu - ', self.Whu.is_cuda)
+        print('Bhs - ', self.Bhs.is_cuda)
         
-        mu = torch.mm(h,self.Whu) + self.Bhu
+        
+        mu = torch.mm(h,self.Whu)
+        mu = mu + self.Bhu
+        
+        
         log_sigma2 = torch.mm(h,self.Whs) + self.Bhs
         
         

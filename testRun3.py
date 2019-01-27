@@ -15,6 +15,7 @@ betas = hp['betas']
 
 Init_Name = 'MEGA_RUN'
 
+
 for bs in [16,32,64]:
     for lr in [0.01,0.005,0.001,0.0005]:
         for h in [128,256,512]:

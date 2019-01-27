@@ -121,7 +121,7 @@ def post_epoch_fn(epoch, train_result, test_result, verbose):
         fig, _ = plot.tensors_as_images(samples, figsize=(6,2))
 #        IPython.display.display(fig)
         name = 'figures_' + str(epoch)
-        savefig(RESULT_DIR + name + '.png')
+        fig.savefig(RESULT_DIR + name + '.png')
         plt.close(fig)
 
         

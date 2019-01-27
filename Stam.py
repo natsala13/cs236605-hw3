@@ -10,11 +10,11 @@ vae = autoencoder.VAE(encoder, decoder, (3,64,64), 5)
 
 print(vae.Whu.is_cuda)
 
-vae.to(device)
+vae = vae.to(device)
 
 print(vae.Whu.is_cuda)
 
 
-vae.Whu.to(device)
+vae.Whu = vae.Whu.to(device)
 
 print(vae.Whu.is_cuda)

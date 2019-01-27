@@ -215,7 +215,7 @@ class VAE(nn.Module):
             
             samples = self.decode(z)
             # ========================
-        return samples
+        return samples.to('cpu')
 
     def forward(self, x):
         z, mu, log_sigma2 = self.encode(x)

@@ -15,7 +15,6 @@ import matplotlib.pyplot as plt
 
 def save_experiment(run_name, out_dir, config, fit_res):
     output = dict(
-        config=config,
         results=fit_res._asdict()
     )
     output_filename = f'{os.path.join(out_dir, run_name)}.json'

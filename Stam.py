@@ -13,3 +13,8 @@ print(vae.Whu.is_cuda)
 vae.to(device)
 
 print(vae.Whu.is_cuda)
+
+
+vae.Whu.to(device)
+
+print(vae.Whu.is_cuda)

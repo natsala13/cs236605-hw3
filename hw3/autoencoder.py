@@ -219,7 +219,15 @@ class VAE(nn.Module):
         return self.decode(z), mu, log_sigma2
     
     
-    def changeDe
+    def changeDevice(device):
+        self.Whu = self.Whu.to(device)
+        self.Whu = self.Whu.to(device)
+        self.Whu = self.Whu.to(device)
+        self.Whu = self.Whu.to(device)
+        self.Whu = self.Whu.to(device)
+        self.Whu = self.Whu.to(device)
+        self.Whu = self.Whu.to(device)
+        
 
 
 def vae_loss(x, xr, z_mu, z_log_sigma2, x_sigma2):

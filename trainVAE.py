@@ -1,3 +1,56 @@
+import unittest
+import os
+import sys
+import pathlib
+import urllib
+import shutil
+import re
+import zipfile
+
+import numpy as np
+import torch
+import matplotlib.pyplot as plt
+
+%load_ext autoreload
+%autoreload 2
+
+test = unittest.TestCase()
+plt.rcParams.update({'font.size': 12})
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+print('Using device:', device)
+
+import cs236605.plot as plot
+import cs236605.download
+from hw3.answers import PART2_CUSTOM_DATA_URL as CUSTOM_DATA_URL
+
+DATA_DIR = pathlib.Path.home().joinpath('.pytorch-datasets')
+if CUSTOM_DATA_URL is None:
+    DATA_URL = 'http://vis-www.cs.umass.edu/lfw/lfw-bush.zip'
+else:
+    DATA_URL = CUSTOM_DATA_URL
+
+_, dataset_dir = cs236605.download.download_data(out_path=DATA_DIR, url=DATA_URL, extract=True, force=False)
+
+import torchvision.transforms as T
+from torchvision.datasets import ImageFolder
+
+im_size = 64
+tf = T.Compose([
+                # Resize to constant spatial dimensions
+                T.Resize((im_size, im_size)),
+                # PIL.Image -> torch.Tensor
+                T.ToTensor(),
+                # Dynamic range [0,1] -> [-1, 1]
+                T.Normalize(mean=(.5,.5,.5), std=(.5,.5,.5)),
+                ])
+
+ds_gwb = ImageFolder(os.path.dirname(dataset_dir), tf)
+
+import hw3.autoencoder as autoencoder
+
+from hw3.autoencoder import vae_loss
+
+
 import torch.optim as optim
 from torch.utils.data import random_split
 from torch.utils.data import DataLoader

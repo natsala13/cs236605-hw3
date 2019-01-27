@@ -19,17 +19,27 @@ class EncoderCNN(nn.Module):
         # You can use any Conv layer parameters, use pooling or only strides,
         # use any activation functions, use BN or Dropout, etc.
         # ====== YOUR CODE: ======
-        Cin = in_channels
-        Cout = 64
-
-        while Cout < out_channels:
-            modules += [nn.Conv2d(Cin,Cout,5,padding=2),nn.MaxPool2d(2),nn.ReLU()]
-            Cin = Cout
-            Cout *= 2
-            
-#         modules += [nn.Conv2d(Cin,out_channels,5,padding=2)]
-        modules += [nn.Conv2d(Cin,Cout,5,padding=2),nn.MaxPool2d(4)]
+#         Cin = in_channels
+#         Cout = 64
         
+#         while Cout < out_channels:
+#             modules += [nn.Conv2d(Cin,Cout,5,padding=2),nn.MaxPool2d(2),nn.ReLU()]
+#             Cin = Cout
+#             Cout *= 2
+            
+# #         modules += [nn.Conv2d(Cin,out_channels,5,padding=2)]
+#         modules += [nn.Conv2d(Cin,Cout,5,padding=2),nn.MaxPool2d(4)]
+        
+        
+        modules = []
+        Cin = in_channels
+        convs = [32,64,128]
+        for Cout in convs:
+            modules += [nn.Conv2d(Cin,Cout,5,padding=2),nn.MaxPool2d(4),nn.ReLU()]
+            Cin = Cout
+
+        
+        modules += [nn.Conv2d(Cin,out_channels,5,padding=2)]
             
             
         # ========================
@@ -55,19 +65,34 @@ class DecoderCNN(nn.Module):
         # ====== YOUR CODE: ======
 
         
-        Cin = in_channels
-        Cout = int(Cin / 2)
-        modules += [nn.Upsample(scale_factor=4, mode='bilinear')]
-        while Cout >= 64:
-            modules += [nn.ConvTranspose2d(Cin,Cout,5,padding=2)]
-            modules += [nn.Upsample(scale_factor=2, mode='bilinear', align_corners = True)]
-            modules += [nn.ReLU()]
+#         Cin = in_channels
+#         Cout = int(Cin / 2)
+#         modules += [nn.Upsample(scale_factor=4, mode='bilinear')]
+#         while Cout >= 64:
+#             modules += [nn.ConvTranspose2d(Cin,Cout,5,padding=2)]
+#             modules += [nn.Upsample(scale_factor=2, mode='bilinear', align_corners = True)]
+#             modules += [nn.ReLU()]
             
+#             Cin = Cout
+#             Cout = int(Cout / 2)
+            
+#         modules += [nn.Conv2d(Cin,out_channels,5,padding=2)]
+        
+        
+        Cin = in_channels
+        convs = [32,64,128]
+        modules = []
+        
+        
+#         modules += [nn.Upsample(scale_factor=4, mode='bilinear')]
+
+        for Cout in reversed(convs):
+            modules += [nn.ConvTranspose2d(Cin,Cout,5,padding=2)]
+            modules += [nn.Upsample(scale_factor=4, mode='bilinear', align_corners = True)]
+            modules += [nn.ReLU()]  
             Cin = Cout
-            Cout = int(Cout / 2)
             
         modules += [nn.Conv2d(Cin,out_channels,5,padding=2)]
-        
         
         # ========================
         self.cnn = nn.Sequential(*modules)
@@ -133,6 +158,7 @@ class VAE(nn.Module):
         # 2. Apply the reparametrization trick.
         # ====== YOUR CODE: ======
         h = self.features_encoder(x)
+        
         h = h.view(h.shape[0],-1)
 
         

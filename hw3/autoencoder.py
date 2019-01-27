@@ -121,22 +121,23 @@ class VAE(nn.Module):
 
         # TODO: Add parameters needed for encode() and decode().
         # ====== YOUR CODE: ======
+        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         D = self.features_shape[0]
         
         m_w = torch.zeros(D,z_dim)
         m_b = torch.zeros(1,z_dim)
         
-        self.Whu = torch.normal(m_w,1)
-        self.Bhu = torch.normal(m_b,1)
-        self.Whs = torch.normal(m_w,1)
-        self.Bhs = torch.normal(m_b,1)
+        self.Whu = torch.normal(m_w,1,device=device)
+        self.Bhu = torch.normal(m_b,1,device=device)
+        self.Whs = torch.normal(m_w,1,device=device)
+        self.Bhs = torch.normal(m_b,1,device=device)
         
         
         m_w = torch.zeros(z_dim,D)
         m_b = torch.zeros(1,D)
         
-        self.Dec_T = torch.normal(m_w,1)
-        self.Dec_b = torch.normal(m_b,1)
+        self.Dec_T = torch.normal(m_w,1,device=device)
+        self.Dec_b = torch.normal(m_b,1,device=device)
         
         # ========================
 

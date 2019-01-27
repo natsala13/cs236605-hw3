@@ -60,7 +60,7 @@ class DecoderCNN(nn.Module):
         modules += [nn.Upsample(scale_factor=4, mode='bilinear')]
         while Cout >= 64:
             modules += [nn.ConvTranspose2d(Cin,Cout,5,padding=2)]
-            modules += [nn.functional.interpolate(scale_factor=2, mode='bilinear')]
+            modules += [nn.Upsample(scale_factor=2, mode='bilinear', align_corners = True)]
             modules += [nn.ReLU()]
             
             Cin = Cout

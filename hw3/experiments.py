@@ -4,64 +4,157 @@ import os
 import random
 import sys
 import json
+import pathlib
 
 import torch
 import torchvision
 
-from torch.utils.data import DataLoader
-from torchvision.datasets import CIFAR10
+import cs236605.download
+import cs236605.plot as plot
+import matplotlib.pyplot as plt
 
 from cs236605.train_results import FitResult
+
+import torchvision.transforms as T
+from torchvision.datasets import ImageFolder
+
+import hw3.autoencoder as autoencoder
+from hw3.autoencoder import vae_loss
+
+
+import torch.optim as optim
+from torch.utils.data import random_split
+from torch.utils.data import DataLoader
+from torch.nn import DataParallel
+from hw3.training import VAETrainer
+from hw3.answers import part2_vae_hyperparams
+
+
 # from . import models
 # from . import training
 
 DATA_DIR = os.path.join(os.getenv('HOME'), '.pytorch-datasets')
+DATA_URL = 'http://vis-www.cs.umass.edu/lfw/lfw-bush.zip'
 
+def run_experiment(run_name, out_dir='./results', seed=42,
+                   # Training params
+                   bs_train=128, bs_test=None, batches=100, epochs=100,
+                   early_stopping=3, checkpoints=None, lr=1e-3,
+                   # Model params
+                   h_dim=256, z_dim=5, x_sigma2=0.9,betas=(0.1,0.1),
+                   **kw):
+    """
+        Execute a single run of experiment 1 with a single configuration.
+        :param run_name: The name of the run and output file to create.
+        :param out_dir: Where to write the output to.
+        """
 
-# def run_experiment(run_name, out_dir='./results', seed=None,
-#                    # Training params
-#                    bs_train=128, bs_test=None, batches=100, epochs=100,
-#                    early_stopping=3, checkpoints=None, lr=1e-3, reg=1e-3,
-#                    # Model params
-#                    filters_per_layer=[64], layers_per_block=2, pool_every=2,
-#                    hidden_dims=[1024], ycn=False,
-#                    **kw):
-#     """
-#         Execute a single run of experiment 1 with a single configuration.
-#         :param run_name: The name of the run and output file to create.
-#         :param out_dir: Where to write the output to.
-#         """
-#     if not seed:
-#         seed = random.randint(0, 2**31)
-#     torch.manual_seed(seed)
-#     if not bs_test:
-#         bs_test = max([bs_train // 4, 1])
-#     cfg = locals()
+    torch.manual_seed(seed)
+    if not bs_test:
+        bs_test = max([bs_train // 4, 1])
+    cfg = locals()
 
-#     tf = torchvision.transforms.ToTensor()
-#     ds_train = CIFAR10(root=DATA_DIR, download=True, train=True, transform=tf)
-#     ds_test = CIFAR10(root=DATA_DIR, download=True, train=False, transform=tf)
     
-#     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    DATA_DIR = pathlib.Path.home().joinpath('.pytorch-datasets')
+    _, dataset_dir = cs236605.download.download_data(out_path=DATA_DIR, url=DATA_URL, extract=True, force=False)
+    im_size = 64
+    tf = T.Compose([
+        # Resize to constant spatial dimensions
+        T.Resize((im_size, im_size)),
+        # PIL.Image -> torch.Tensor
+        T.ToTensor(),
+        # Dynamic range [0,1] -> [-1, 1]
+        T.Normalize(mean=(.5,.5,.5), std=(.5,.5,.5)),
+    ])
     
-#     # Select model class (experiment 1 or 2)
-#     model_cls = models.ConvClassifier if not ycn else models.YourCodeNet
+    ds_gwb = ImageFolder(os.path.dirname(dataset_dir), tf)
+
     
-#     # TODO: Train
-#     # - Create model, loss, optimizer and trainer based on the parameters.
-#     #   Use the model you've implemented previously, cross entropy loss and
-#     #   any optimizer that you wish.
-#     # - Run training and save the FitResults in the fit_res variable.
-#     # - The fit results and all the experiment parameters will then be saved
-#     #  for you automatically.
-#     fit_res = None
-#     # ====== YOUR CODE: ======
-#     raise NotImplementedError()
-#     # ========================
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     
-#     save_experiment(run_name, out_dir, cfg, fit_res)
+
+    
+    # TODO: Train
+    # - Create model, loss, optimizer and trainer based on the parameters.
+    #   Use the model you've implemented previously, cross entropy loss and
+    #   any optimizer that you wish.
+    # - Run training and save the FitResults in the fit_res variable.
+    # - The fit results and all the experiment parameters will then be saved
+    #  for you automatically.
+    fit_res = None
+    # ====== YOUR CODE: ======
+    # Hyperparams
+#     hp = part2_vae_hyperparams()
+#     batch_size = hp['batch_size']
+#     h_dim = hp['h_dim']
+#     z_dim = hp['z_dim']
+#     x_sigma2 = hp['x_sigma2']
+#     learn_rate = hp['learn_rate']
+#     betas = hp['betas']
+    
+    
+    # Data
+    split_lengths = [int(len(ds_gwb)*0.9), int(len(ds_gwb)*0.1)]
+    ds_train, ds_test = random_split(ds_gwb, split_lengths)
+    dl_train = DataLoader(ds_train, bs_train, shuffle=True)
+    dl_test  = DataLoader(ds_test,  bs_train, shuffle=True)
+    im_size = ds_train[0][0].shape
+
+    # Model
+    encoder = autoencoder.EncoderCNN(in_channels=im_size[0], out_channels=h_dim)
+    decoder = autoencoder.DecoderCNN(in_channels=h_dim, out_channels=im_size[0])
+    vae = autoencoder.VAE(encoder, decoder, im_size, z_dim)
+    vae_dp = DataParallel(vae).to(device)
+
+    # Optimizer
+    optimizer = optim.Adam(vae.parameters(), lr=lr, betas=betas)
+    
+    
+    # Loss
+    def loss_fn(x, xr, z_mu, z_log_sigma2):
+        return autoencoder.vae_loss(x, xr, z_mu, z_log_sigma2, x_sigma2)
+    
+    def post_epoch_fn(epoch, train_result, test_result, verbose):
+        # Plot some samples if this is a verbose epoch
+        if verbose:
+            samples = vae.sample(n=5)
+            fig, _ = plot.tensors_as_images(samples, figsize=(6,2))
+
+            name = 'figures_' + str(epoch)
+            fig.savefig(RESULT_DIR + name + '.png')
+            plt.close(fig)
+
+    # Trainer
+    trainer = VAETrainer(vae_dp, loss_fn, optimizer, device)
+    checkpoint_file = 'checkpoints/vae'
+    checkpoint_file_final = f'{checkpoint_file}_final'
+    if os.path.isfile(f'{checkpoint_file}.pt'):
+        os.remove(f'{checkpoint_file}.pt')
+    
 
 
+    fit_res = trainer.fit(dl_train, dl_test,
+                  num_epochs=epochs, early_stopping=20, print_every=10,
+                  checkpoints=checkpoint_file,
+                  post_epoch_fn=post_epoch_fn)
+    # ========================
+    
+    save_experiment(run_name, out_dir, cfg, fit_res)
+
+    
+
+    
+    
+    
+RESULT_DIR = 'results/'
+
+
+
+
+
+    
+    
+    
 def save_experiment(run_name, out_dir, config, fit_res):
     output = dict(
                   config=config,

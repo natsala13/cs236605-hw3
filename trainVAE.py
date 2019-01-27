@@ -59,7 +59,6 @@ tf = T.Compose([
 ds_gwb = ImageFolder(os.path.dirname(dataset_dir), tf)
 
 import hw3.autoencoder as autoencoder
-
 from hw3.autoencoder import vae_loss
 
 
@@ -127,7 +126,7 @@ def post_epoch_fn(epoch, train_result, test_result, verbose):
         
         
 fit_res = trainer.fit(dl_train, dl_test,
-                  num_epochs=60, early_stopping=20, print_every=10,
+                  num_epochs=30, early_stopping=20, print_every=10,
                   checkpoints=checkpoint_file,
                   post_epoch_fn=post_epoch_fn)
 

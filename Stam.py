@@ -18,4 +18,3 @@ vae.Whu = vae.Whu.to(device)
 print(vae.Whu.is_cuda)
 print(vae.Whs.is_cuda)
 
-print(vae.is_cuda)

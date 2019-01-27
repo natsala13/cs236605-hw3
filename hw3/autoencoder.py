@@ -163,10 +163,10 @@ class VAE(nn.Module):
         h = h.view(h.shape[0],-1)
         
         
-        print('x - ' , x.is_cuda)
-        print('h - ' , h.is_cuda)
-        print('Whu - ', self.Whu.is_cuda)
-        print('Bhs - ', self.Bhs.is_cuda)
+#         print('x - ' , x.is_cuda)
+#         print('h - ' , h.is_cuda)
+#         print('Whu - ', self.Whu.is_cuda)
+#         print('Bhs - ', self.Bhs.is_cuda)
         
         
         mu = torch.mm(h,self.Whu)
@@ -175,9 +175,9 @@ class VAE(nn.Module):
         
         log_sigma2 = torch.mm(h,self.Whs) + self.Bhs
         
-        
+        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         o = torch.zeros(1,self.z_dim)
-        u = torch.normal(o,1)
+        u = torch.normal(o,1).to(device)
 
         
         z = mu + log_sigma2*u

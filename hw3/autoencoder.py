@@ -127,17 +127,17 @@ class VAE(nn.Module):
         m_w = torch.zeros(D,z_dim)
         m_b = torch.zeros(1,z_dim)
         
-        self.Whu = torch.normal(m_w,1,device=device)
-        self.Bhu = torch.normal(m_b,1,device=device)
-        self.Whs = torch.normal(m_w,1,device=device)
-        self.Bhs = torch.normal(m_b,1,device=device)
+        self.Whu = torch.normal(m_w,1).to(device)
+        self.Bhu = torch.normal(m_b,1).to(device)
+        self.Whs = torch.normal(m_w,1).to(device)
+        self.Bhs = torch.normal(m_b,1).to(device)
         
         
         m_w = torch.zeros(z_dim,D)
         m_b = torch.zeros(1,D)
         
-        self.Dec_T = torch.normal(m_w,1,device=device)
-        self.Dec_b = torch.normal(m_b,1,device=device)
+        self.Dec_T = torch.normal(m_w,1).to(device)
+        self.Dec_b = torch.normal(m_b,1).to(device)
         
         # ========================
 

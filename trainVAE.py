@@ -127,18 +127,32 @@ def post_epoch_fn(epoch, train_result, test_result, verbose):
         
         
 fit_res = trainer.fit(dl_train, dl_test,
-                  num_epochs=200, early_stopping=20, print_every=10,
+                  num_epochs=60, early_stopping=20, print_every=10,
                   checkpoints=checkpoint_file,
                   post_epoch_fn=post_epoch_fn)
 
 
-# Plot images from best model
-saved_state = torch.load(f'{checkpoint_file}.pt', map_location=device)
-vae_dp.load_state_dict(saved_state['model_state'])
-print('*** Images Generated from best model:')
-fig, _ = plot.tensors_as_images(vae_dp.module.sample(n=15), nrows=3, figsize=(6,6))
+# # Plot images from best model
+# saved_state = torch.load(f'{checkpoint_file}.pt', map_location=device)
+# vae_dp.load_state_dict(saved_state['model_state'])
+# print('*** Images Generated from best model:')
+# fig, _ = plot.tensors_as_images(vae_dp.module.sample(n=15), nrows=3, figsize=(6,6))
 
 
-savefig(RESULT_DIR + 'final.png')
+# savefig(RESULT_DIR + 'final.png')
 
 save_experiment('stam', 'results', locals(), fit_res)
+
+
+
+def save_experiment(run_name, out_dir, config, fit_res):
+    output = dict(
+        config=config,
+        results=fit_res._asdict()
+    )
+    output_filename = f'{os.path.join(out_dir, run_name)}.json'
+    os.makedirs(out_dir, exist_ok=True)
+    with open(output_filename, 'w') as f:
+        json.dump(output, f, indent=2)
+
+    print(f'*** Output file {output_filename} written')

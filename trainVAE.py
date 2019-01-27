@@ -11,8 +11,7 @@ import numpy as np
 import torch
 import matplotlib.pyplot as plt
 
-%load_ext autoreload
-%autoreload 2
+
 
 test = unittest.TestCase()
 plt.rcParams.update({'font.size': 12})

@@ -208,8 +208,10 @@ class VAE(nn.Module):
             # Generate n latent space samples and return their reconstructions.
             # Remember that for the model, this is like inference.
             # ====== YOUR CODE: ======
+            device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+            
             o = torch.zeros(n,self.z_dim)
-            z = torch.normal(o,1)
+            z = torch.normal(o,1).to(device)
             
             samples = self.decode(z)
             # ========================

@@ -9,6 +9,8 @@ from typing import Callable, Any
 from pathlib import Path
 from cs236605.train_results import BatchResult, EpochResult, FitResult
 
+import numpy as np
+
 
 class Trainer(abc.ABC):
     """
@@ -90,9 +92,9 @@ class Trainer(abc.ABC):
             
             
 
-            train_loss += [torch.mean(train_res.losses)]
+            train_loss += [np.mean(train_res.losses)]
             train_acc += [train_res.accuracy]
-            test_loss += [torch.mean(test_res.losses)]
+            test_loss += [np.mean(test_res.losses)]
             test_acc += [test_res.accuracy]
             # ========================
 

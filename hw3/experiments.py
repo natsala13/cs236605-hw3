@@ -120,7 +120,7 @@ def run_experiment(run_name, out_dir='./results', seed=42,
             samples = vae.sample(n=5)
             fig, _ = plot.tensors_as_images(samples, figsize=(6,2))
 
-            name = 'figures_' + str(epoch)
+            name = run_name + '_Ep_' + str(epoch)
             fig.savefig(RESULT_DIR + name + '.png')
             plt.close(fig)
 

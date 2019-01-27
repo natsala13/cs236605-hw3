@@ -91,7 +91,7 @@ def part2_vae_hyperparams():
     h_dim = 256
     z_dim = 5
     x_sigma2 = 0.9
-    learn_rate = 0.001
+    learn_rate = 0.0001
     betas = (0.1,0.1)
     
     

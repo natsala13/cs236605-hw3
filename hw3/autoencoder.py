@@ -2,6 +2,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+import numpy as np
+
 
 class EncoderCNN(nn.Module):
     def __init__(self, in_channels, out_channels):
@@ -17,7 +19,19 @@ class EncoderCNN(nn.Module):
         # You can use any Conv layer parameters, use pooling or only strides,
         # use any activation functions, use BN or Dropout, etc.
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+        Cin = in_channels
+        Cout = 64
+
+        while Cout < out_channels:
+            modules += [nn.Conv2d(Cin,Cout,5,padding=2),nn.MaxPool2d(2),nn.ReLU()]
+            Cin = Cout
+            Cout *= 2
+            
+#         modules += [nn.Conv2d(Cin,out_channels,5,padding=2)]
+        modules += [nn.Conv2d(Cin,Cout,5,padding=2),nn.MaxPool2d(4)]
+        
+            
+            
         # ========================
         self.cnn = nn.Sequential(*modules)
 
@@ -39,7 +53,22 @@ class DecoderCNN(nn.Module):
         # Output should be a batch of images, with same dimensions as the
         # inputs to the Encoder were.
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+
+        
+        Cin = in_channels
+        Cout = int(Cin / 2)
+        modules += [nn.Upsample(scale_factor=4, mode='bilinear')]
+        while Cout >= 64:
+            modules += [nn.ConvTranspose2d(Cin,Cout,5,padding=2)]
+            modules += [nn.Upsample(scale_factor=2, mode='bilinear')]
+            modules += [nn.ReLU()]
+            
+            Cin = Cout
+            Cout = int(Cout / 2)
+            
+        modules += [nn.Conv2d(Cin,out_channels,5,padding=2)]
+        
+        
         # ========================
         self.cnn = nn.Sequential(*modules)
 
@@ -67,7 +96,23 @@ class VAE(nn.Module):
 
         # TODO: Add parameters needed for encode() and decode().
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+        D = self.features_shape[0]
+        
+        m_w = torch.zeros(D,z_dim)
+        m_b = torch.zeros(1,z_dim)
+        
+        self.Whu = torch.normal(m_w,1)
+        self.Bhu = torch.normal(m_b,1)
+        self.Whs = torch.normal(m_w,1)
+        self.Bhs = torch.normal(m_b,1)
+        
+        
+        m_w = torch.zeros(z_dim,D)
+        m_b = torch.zeros(1,D)
+        
+        self.Dec_T = torch.normal(m_w,1)
+        self.Dec_b = torch.normal(m_b,1)
+        
         # ========================
 
     def _check_features(self, in_size):
@@ -87,7 +132,20 @@ class VAE(nn.Module):
         # log_sigma2 (mean and log variance) of the posterior p(z|x).
         # 2. Apply the reparametrization trick.
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+        h = self.features_encoder(x)
+        h = h.view(h.shape[0],-1)
+
+        
+        mu = torch.mm(h,self.Whu) + self.Bhu
+        log_sigma2 = torch.mm(h,self.Whs) + self.Bhs
+        
+        
+        o = torch.zeros(1,self.z_dim)
+        u = torch.normal(o,1)
+
+        
+        z = mu + log_sigma2*u
+        
         # ========================
 
         return z, mu, log_sigma2
@@ -97,7 +155,10 @@ class VAE(nn.Module):
         # 1. Convert latent to features.
         # 2. Apply features decoder.
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+        h = torch.mm(z,self.Dec_T) + self.Dec_b
+        h = h.view(h.shape[0],-1,1,1)
+        
+        x_rec = self.features_decoder(h)
         # ========================
 
         # Scale to [-1, 1] (same dynamic range as original images).
@@ -111,7 +172,10 @@ class VAE(nn.Module):
             # Generate n latent space samples and return their reconstructions.
             # Remember that for the model, this is like inference.
             # ====== YOUR CODE: ======
-            raise NotImplementedError()
+            o = torch.zeros(n,self.z_dim)
+            z = torch.normal(o,1)
+            
+            samples = self.decode(z)
             # ========================
         return samples
 
@@ -138,7 +202,33 @@ def vae_loss(x, xr, z_mu, z_log_sigma2, x_sigma2):
     # TODO: Implement the VAE pointwise loss calculation.
     # Remember that the covariance matrix of the posterior is diagonal.
     # ====== YOUR CODE: ======
-    raise NotImplementedError()
+    
+    N = x.shape[0]
+    r = (x - xr).view(N,-1)
+    D = r.shape[1]
+    
+    
+    diff = torch.mm(r,r.transpose(0,1))
+    data_loss_vec = torch.diag(diff) / x_sigma2
+    
+    data_loss = torch.mean(data_loss_vec) / D
+
+    
+    
+    
+    z_dim = z_mu.shape[1]
+    kldiv_loss_vec = z_log_sigma2.exp().sum(dim=1) + z_mu.norm(dim=1).pow(2) - z_dim - z_log_sigma2.sum(dim=1)
+    kldiv_loss = torch.mean(kldiv_loss_vec) / z_dim
+    
+    
+    
+    
+    
+    
+    
+    loss = kldiv_loss + data_loss
+    
+    
     # ========================
 
     return loss, data_loss, kldiv_loss

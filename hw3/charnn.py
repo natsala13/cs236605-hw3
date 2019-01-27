@@ -6,6 +6,8 @@ import torch.nn.functional as F
 from torch import Tensor
 
 
+import numpy as np
+
 def char_maps(text: str):
     """
     Create mapping from the unique chars in a text to integers and
@@ -22,7 +24,15 @@ def char_maps(text: str):
     # It's best if you also sort the chars before assigning indices, so that
     # they're in lexical order.
     # ====== YOUR CODE: ======
-    raise NotImplementedError()
+    letters = list(set(text))
+    letters.sort()
+    
+    idx = np.arange(len(letters))
+    
+    char_to_idx = dict(zip(letters,idx))
+    idx_to_char = dict(zip(idx,letters))
+    
+    
     # ========================
     return char_to_idx, idx_to_char
 
@@ -36,9 +46,13 @@ def remove_chars(text: str, chars_to_remove):
         - text_clean: the text after removing the chars.
         - n_removed: Number of chars removed.
     """
+    
+    
     # TODO: Implement according to the docstring.
     # ====== YOUR CODE: ======
-    raise NotImplementedError()
+    text_clean = "".join([c for c in text if c not in chars_to_remove])
+    
+    n_removed = len(text) - len(text_clean)
     # ========================
     return text_clean, n_removed
 

@@ -85,7 +85,15 @@ class Trainer(abc.ABC):
             # - Implement early stopping. This is a very useful and
             #   simple regularization technique that is highly recommended.
             # ====== YOUR CODE: ======
-            raise NotImplementedError()
+            train_res = self.train_epoch(dl_train, **kw)
+            test_res = self.test_epoch(dl_test, **kw)
+            
+            
+
+            train_loss += [torch.mean(train_res.losses)]
+            train_acc += [train_res.accuracy]
+            test_loss += [torch.mean(test_res.losses)]
+            test_acc += [test_res.accuracy]
             # ========================
 
             # Save model checkpoint if requested
@@ -262,7 +270,21 @@ class VAETrainer(Trainer):
         x = x.to(self.device)  # Image batch (N,C,H,W)
         # TODO: Train a VAE on one batch.
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+        self.optimizer.zero_grad()
+        
+        #forward 
+        xr, z_mu, z_log_sigma2 = self.model(x)
+        
+        #calculate loss
+        loss, data_loss , _ = self.loss_fn(x, xr, z_mu, z_log_sigma2)
+        
+        #backward
+        loss.backward()
+        
+        #optimise
+        self.optimizer.step()
+        
+        
         # ========================
 
         return BatchResult(loss.item(), 1/data_loss.item())
@@ -274,7 +296,12 @@ class VAETrainer(Trainer):
         with torch.no_grad():
             # TODO: Evaluate a VAE on one batch.
             # ====== YOUR CODE: ======
-            raise NotImplementedError()
+            #forward 
+            xr, z_mu, z_log_sigma2 = self.model(x)
+
+            #calculate loss
+            loss, data_loss , _ = self.loss_fn(x, xr, z_mu, z_log_sigma2)
+
             # ========================
 
         return BatchResult(loss.item(), 1/data_loss.item())

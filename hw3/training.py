@@ -98,23 +98,23 @@ class Trainer(abc.ABC):
             test_acc += [test_result.accuracy]
             
             
-            ################### implement early stopping ####################
-            if early_stopping != None:
-                nowLoss = np.mean(test_res.losses)
+#             ################### implement early stopping ####################
+#             if early_stopping != None:
+#                 nowLoss = np.mean(test_res.losses)
                 
-                if nowLoss > lastLoss:
-                    epochs_without_improvement += 1
-                else:
-                    epochs_without_improvement = 0
+#                 if nowLoss > lastLoss:
+#                     epochs_without_improvement += 1
+#                 else:
+#                     epochs_without_improvement = 0
 
-                if epochs_without_improvement > early_stopping:
-                    print('#######################################')
-                    print('Early Stopping!!')
-                    print('#######################################')
-                    break
+#                 if epochs_without_improvement > early_stopping:
+#                     print('#######################################')
+#                     print('Early Stopping!!')
+#                     print('#######################################')
+#                     break
 
 
-                lastLoss = nowLoss
+#                 lastLoss = nowLoss
             # ========================
 
             # Save model checkpoint if requested

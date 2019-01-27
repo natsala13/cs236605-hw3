@@ -1,25 +1,0 @@
-cpu-bind=MASK - rishon3, task  0  0 [42179]: mask 0x100000001 set
-cpu-bind=MASK - rishon3, task  0  0 [42179]: mask 0x100000001 set
-*** SLURM BATCH JOB 'test_job' STARTING ***
-*** Activating environment cs236605-hw ***
-Using device: cuda
-File /home/natsala/.pytorch-datasets/lfw-bush.zip exists, skipping download.
-Extracting /home/natsala/.pytorch-datasets/lfw-bush.zip...
-Extracted 531 to /home/natsala/.pytorch-datasets/lfw/George_W_Bush
---- EPOCH 1/200 ---
-train_batch:   0%|          | 0/8 [00:00<?, ?it/s]THCudaCheck FAIL file=/opt/conda/conda-bld/pytorch_1535493744281/work/aten/src/THC/THCGeneral.cpp line=663 error=11 : invalid argument
-train_batch (1.343):   0%|          | 0/8 [00:00<?, ?it/s]train_batch (1.343):  12%|█▎        | 1/8 [00:00<00:02,  2.74it/s]train_batch (4.611):  12%|█▎        | 1/8 [00:00<00:02,  2.74it/s]train_batch (4.611):  25%|██▌       | 2/8 [00:00<00:02,  2.76it/s]train_batch (0.833):  25%|██▌       | 2/8 [00:01<00:02,  2.76it/s]train_batch (0.833):  38%|███▊      | 3/8 [00:01<00:01,  2.80it/s]train_batch (0.659):  38%|███▊      | 3/8 [00:01<00:01,  2.80it/s]train_batch (0.659):  50%|█████     | 4/8 [00:01<00:01,  2.82it/s]train_batch (0.476):  50%|█████     | 4/8 [00:01<00:01,  2.82it/s]train_batch (0.476):  62%|██████▎   | 5/8 [00:01<00:01,  2.84it/s]train_batch (0.855):  62%|██████▎   | 5/8 [00:02<00:01,  2.84it/s]train_batch (0.855):  75%|███████▌  | 6/8 [00:02<00:00,  2.84it/s]train_batch (0.372):  75%|███████▌  | 6/8 [00:02<00:00,  2.84it/s]train_batch (0.372):  88%|████████▊ | 7/8 [00:02<00:00,  2.84it/s]train_batch (0.549):  88%|████████▊ | 7/8 [00:02<00:00,  2.84it/s]train_batch (0.549): 100%|██████████| 8/8 [00:02<00:00,  3.38it/s]train_batch (Avg. Loss 1.212, Accuracy 4.6): 100%|██████████| 8/8 [00:02<00:00,  3.38it/s]
-test_batch:   0%|          | 0/1 [00:00<?, ?it/s]test_batch (0.496):   0%|          | 0/1 [00:00<?, ?it/s]test_batch (0.496): 100%|██████████| 1/1 [00:00<00:00,  3.69it/s]test_batch (Avg. Loss 0.496, Accuracy 5.8): 100%|██████████| 1/1 [00:00<00:00,  3.69it/s]/home/natsala/miniconda3/envs/cs236605-hw/lib/python3.7/site-packages/torch/nn/modules/upsampling.py:122: UserWarning: nn.Upsampling is deprecated. Use nn.functional.interpolate instead.
-  warnings.warn("nn.Upsampling is deprecated. Use nn.functional.interpolate instead.")
-
-Traceback (most recent call last):
-  File "trainVAE.py", line 132, in <module>
-    post_epoch_fn=post_epoch_fn)
-  File "/home/natsala/cs236605-hw3/hw3/training.py", line 111, in fit
-    post_epoch_fn(epoch, train_result, test_result, verbose)
-  File "trainVAE.py", line 121, in post_epoch_fn
-    fig, _ = plot.tensors_as_images(samples, figsize=(6,2))
-  File "/home/natsala/cs236605-hw3/cs236605/plot.py", line 34, in tensors_as_images
-    image = image_tensor.numpy()
-TypeError: can't convert CUDA tensor to numpy. Use Tensor.cpu() to copy the tensor to host memory first.
-*** SLURM BATCH JOB 'test_job' DONE ***

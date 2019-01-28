@@ -12,7 +12,7 @@ OUTDIR = './results/Res2/'
 AllResults = {}
 
 h_dim = 256
-z_dim - 5
+z_dim = 10
 Epochs = 100
 
 

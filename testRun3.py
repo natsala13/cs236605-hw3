@@ -47,7 +47,6 @@ OUTDIR = './results/Res1/'
 AllResults = {}
 
 bs = 32
-h_dim = 256
 Epochs = 100
 
 
@@ -60,10 +59,10 @@ for bs in [16,32,64]:
                         name ='bs_' + str(bs) + 'lr_' + str(lr) + 'h_' + str(h) + 'z_' + str(z) + 's_' + str(s)
                         res = run_experiment(Init_Name + name, out_dir=OUTDIR, seed=42,
                                         # Training params
-                                        bs_train=32, bs_test=None, batches=100, epochs=Epochs,
+                                        bs_train=bs, bs_test=None, batches=100, epochs=Epochs,
                                         early_stopping=10, checkpoints=None, lr=lr,
                                         # Model params
-                                        h_dim=h_dim, z_dim=z_dim, x_sigma2=s)
+                                        h_dim=h, z_dim=z, x_sigma2=s)
                         AllResults[name] = res
                     except AutoEncoderError as e:
                         AllResults[name] = 'Failed... ' + str(e)

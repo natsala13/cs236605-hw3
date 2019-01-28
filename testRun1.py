@@ -12,7 +12,9 @@ AllResults = {}
 
 bs = 32
 h_dim = 256
+z_dim = 10
 Epochs = 100
+
 
 
 

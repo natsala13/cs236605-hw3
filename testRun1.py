@@ -12,29 +12,46 @@ AllResults = {}
 
 bs = 32
 h_dim = 256
-z_dim = 10
+z_dim = 128
 Epochs = 100
+lr = 0.0005
+s = 0.9
 
 
 
+# for lr in [0.001,0.0005,0.0001]:
+#     for s in [0.8,0.85,0.9,0.95]:
+#         try:
+#             name = 'lr_' + str(lr) + 's_' + str(s)
+#             res = run_experiment(Init_Name + name, out_dir=OUTDIR, seed=42,
+#                             # Training params
+#                             bs_train=8, bs_test=None, batches=100, epochs=Epochs,
+#                             early_stopping=10, checkpoints=None, lr=lr,
+#                             # Model params
+#                             h_dim=h_dim, z_dim=z_dim, x_sigma2=s)
+#             AllResults[name] = res
+#         except AutoEncoderError as e:
+#             AllResults[name] = 'Failed... ' + str(e)
+#         except OSError as e:
+#             AllResults[name] = 'Failed... ' + str(e)
 
-for lr in [0.001,0.0005,0.0001]:
-    for s in [0.8,0.85,0.9,0.95]:
-        try:
-            name = 'lr_' + str(lr) + 's_' + str(s)
-            res = run_experiment(Init_Name + name, out_dir=OUTDIR, seed=42,
+
+
+try:           
+    name = 'lr_' + str(lr) + 's_' + str(s)
+    res = run_experiment(Init_Name + name, out_dir=OUTDIR, seed=42,
                             # Training params
                             bs_train=8, bs_test=None, batches=100, epochs=Epochs,
                             early_stopping=10, checkpoints=None, lr=lr,
                             # Model params
                             h_dim=h_dim, z_dim=z_dim, x_sigma2=s)
-            AllResults[name] = res
-        except AutoEncoderError as e:
-            AllResults[name] = 'Failed... ' + str(e)
-        except OSError as e:
-            AllResults[name] = 'Failed... ' + str(e)
-            
-
-            
+    AllResults[name] = res
+except AutoEncoderError as e:
+    AllResults[name] = 'Failed... ' + str(e)
+except OSError as e:
+    AllResults[name] = 'Failed... ' + str(e)
+    
+    
+    
             
 np.save(OUTDIR + 'RunFinal', AllResults)

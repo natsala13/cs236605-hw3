@@ -16,8 +16,8 @@ s = 0.9
 
 
 for h in [128,256,512]:
-    for z in [2,5,10,20,50]:
-        for lr in [0.01,0.001,0.0005]:
+    for z in [5,10,20,50]:
+        for lr in [0.01,0.0005]:
             try:
                 name = 'h_' + str(h) + 'z_' + str(z) + 'lr_' + str(lr)
                 res = run_experiment(Init_Name + name, out_dir=OUTDIR, seed=42,

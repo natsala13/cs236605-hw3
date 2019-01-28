@@ -21,7 +21,7 @@ for bs in [16,32,64]:
             name = Init_Name + 'bs_' + str(bs) + 'lr_' + str(lr) + 's_' + str(s)
             run_experiment(name, out_dir='./results', seed=42,
                                     # Training params
-                                   bs_train=bs, bs_test=None, batches=100, epochs=30,
+                                   bs_train=bs, bs_test=None, batches=100, epochs=100,
                                    early_stopping=3, checkpoints=None, lr=lr,
                                    # Model params
                                    h_dim=256, z_dim=5, x_sigma2=0.9)

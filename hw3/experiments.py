@@ -134,7 +134,7 @@ def run_experiment(run_name, out_dir='./results', seed=42,
 
 
     fit_res = trainer.fit(dl_train, dl_test,
-                  num_epochs=epochs, early_stopping=20, print_every=10,
+                  num_epochs=epochs, early_stopping=20, print_every=40,
                   checkpoints=checkpoint_file,
                   post_epoch_fn=post_epoch_fn)
     # ========================

@@ -21,7 +21,7 @@ for lr in [0.01,0.005,0.001,0.0005]:
         name = Init_Name + 'lr_' + str(lr) + 's_' + str(s)
         run_experiment(name, out_dir='./results', seed=42,
                         # Training params
-                        bs_train=32, bs_test=None, batches=100, epochs=30,
+                        bs_train=32, bs_test=None, batches=100, epochs=100,
                         early_stopping=3, checkpoints=None, lr=lr,
                         # Model params
                         h_dim=256, z_dim=5, x_sigma2=0.9)

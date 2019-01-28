@@ -126,7 +126,7 @@ def run_experiment(run_name, out_dir='./results', seed=42,
                 IPython.display.display(fig)
             else:
                 name = run_name + '_Ep_' + str(epoch)
-                fig.savefig(RESULT_DIR + name + '.png')
+                fig.savefig(out_dir + name + '.png')
             plt.close(fig)
 
     # Trainer

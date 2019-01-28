@@ -77,7 +77,7 @@ class Trainer(abc.ABC):
         for epoch in range(num_epochs):
             save_checkpoint = False
             verbose = False  # pass this to train/test_epoch.
-            if epoch % print_every == 0 or epoch == num_epochs - 1:
+            if epoch != 0 and (epoch % print_every == 0 or epoch == num_epochs - 1):
                 verbose = True
             self._print(f'--- EPOCH {epoch+1}/{num_epochs} ---', verbose)
 

@@ -1,0 +1,5 @@
+Small Size step is better - best 0.0005
+
+high variance is better - best 0.9
+
+small batches are better - best 16

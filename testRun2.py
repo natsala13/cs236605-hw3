@@ -13,10 +13,10 @@ AllResults = {}
 
 h_dim = 256
 z_dim = 10
-Epochs = 100
+Epochs = 40
 
 
-for bs in [16,32,64]:
+for bs in [4,8,16]:
     for lr in [0.001,0.0005,0.0001]:
         for s in [0.9,0.95]:
             try:

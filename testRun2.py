@@ -17,8 +17,8 @@ Epochs = 100
 
 
 for bs in [16,32,64]:
-    for lr in [0.01,0.005,0.001,0.0005]:
-        for s in [0.5,0.9]:
+    for lr in [0.001,0.0005,0.0001]:
+        for s in [0.9,0.95]:
             try:
                 name = 'bs_' + str(bs) + 'lr_' + str(lr) + 's_' + str(s)
                 res = run_experiment(Init_Name + name, out_dir=OUTDIR, seed=42,

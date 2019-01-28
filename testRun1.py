@@ -6,7 +6,7 @@ from hw3.autoencoder import AutoEncoderError
 import numpy as np
      
 Init_Name = 'MEGA_RUN'
-OUTDIR = './results/Res1/'
+OUTDIR = './results/Res4/'
 
 AllResults = {}
 
@@ -18,8 +18,8 @@ Epochs = 100
 
 
 
-for lr in [0.01,0.005,0.001,0.0005]:
-    for s in [0.5,0.9]:
+for lr in [0.001,0.0005,0.0001]:
+    for s in [0.8,0.85,0.9,0.95]:
         try:
             name = 'lr_' + str(lr) + 's_' + str(s)
             res = run_experiment(Init_Name + name, out_dir=OUTDIR, seed=42,
@@ -37,4 +37,4 @@ for lr in [0.01,0.005,0.001,0.0005]:
 
             
             
-np.save(OUTDIR + 'Run1Final', AllResults)
+np.save(OUTDIR + 'RunFinal', AllResults)

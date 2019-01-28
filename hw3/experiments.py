@@ -30,6 +30,8 @@ from hw3.training import VAETrainer
 from hw3.answers import part2_vae_hyperparams
 
 
+import IPython.display
+
 # from . import models
 # from . import training
 
@@ -39,7 +41,8 @@ DATA_URL = 'http://vis-www.cs.umass.edu/lfw/lfw-bush.zip'
 def run_experiment(run_name, out_dir='./results', seed=42,
                    # Training params
                    bs_train=128, bs_test=None, batches=100, epochs=100,
-                   early_stopping=3, checkpoints=None, lr=1e-3,
+                   early_stopping=3, checkpoints=None, lr=1e-3,RTplot=False,
+                   print_every=2,
                    # Model params
                    h_dim=256, z_dim=5, x_sigma2=0.9,betas=(0.1,0.1),
                    **kw):
@@ -119,9 +122,11 @@ def run_experiment(run_name, out_dir='./results', seed=42,
         if verbose:
             samples = vae.sample(n=5)
             fig, _ = plot.tensors_as_images(samples, figsize=(6,2))
-
-            name = run_name + '_Ep_' + str(epoch)
-            fig.savefig(RESULT_DIR + name + '.png')
+            if RTplot:
+                IPython.display.display(fig)
+            else:
+                name = run_name + '_Ep_' + str(epoch)
+                fig.savefig(RESULT_DIR + name + '.png')
             plt.close(fig)
 
     # Trainer
@@ -134,13 +139,18 @@ def run_experiment(run_name, out_dir='./results', seed=42,
 
 
     fit_res = trainer.fit(dl_train, dl_test,
-                  num_epochs=epochs, early_stopping=20, print_every=40,
+                  num_epochs=epochs, early_stopping=20, print_every=print_every,
                   checkpoints=checkpoint_file,
                   post_epoch_fn=post_epoch_fn)
+    
+    last_train_loss = fit_res.train_loss[-1]
+    last_test_loss = fit_res.test_loss[-1]
     # ========================
     
     save_experiment(run_name, out_dir, cfg, fit_res)
-
+    
+    
+    return {'train': last_train_loss, 'test': last_test_loss}
     
 
     

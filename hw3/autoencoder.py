@@ -127,9 +127,11 @@ class VAE(nn.Module):
         m_w = torch.zeros(D,z_dim)
         m_b = torch.zeros(1,z_dim)
         
-        self.Whu = torch.normal(m_w,1).to(device)
+        s = 1 / D
+        
+        self.Whu = torch.normal(m_w,s).to(device)
         self.Bhu = torch.normal(m_b,1).to(device)
-        self.Whs = torch.normal(m_w,1).to(device)
+        self.Whs = torch.normal(m_w,s).to(device)
         self.Bhs = torch.normal(m_b,1).to(device)
         
         
@@ -163,10 +165,6 @@ class VAE(nn.Module):
         h = h.view(h.shape[0],-1)
         
         
-#         print('x - ' , x.is_cuda)
-#         print('h - ' , h.is_cuda)
-#         print('Whu - ', self.Whu.is_cuda)
-#         print('Bhs - ', self.Bhs.is_cuda)
         
         
         mu = torch.mm(h,self.Whu)
@@ -174,6 +172,15 @@ class VAE(nn.Module):
         
         
         log_sigma2 = torch.mm(h,self.Whs) + self.Bhs
+#         print()
+#         print('############################### Encode ###################################')
+#         print('log sigma - ', log_sigma2)
+#         print('h shape - ', h.shape)
+#         print('h - ', h)
+#         print('Whs - ', self.Whs)
+#         print('Bhs - ', self.Bhs)
+        
+#         print('##########################################################################')
         
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         o = torch.zeros(1,self.z_dim)
@@ -272,12 +279,25 @@ def vae_loss(x, xr, z_mu, z_log_sigma2, x_sigma2):
     
     
     
-    
-    
-    
     loss = kldiv_loss + data_loss
+    
+    if loss > 10000 or torch.isnan(loss):
+        raise AutoEncoderError('loss is Inf/Nan...')
     
     
     # ========================
 
     return loss, data_loss, kldiv_loss
+
+
+
+
+class AutoEncoderError(Exception):
+    def __init__(self, message):
+        message = '################ ' + message + ' ################'
+        # Call the base class constructor with the parameters it needs
+        super().__init__(message)
+        self.message = message
+
+
+

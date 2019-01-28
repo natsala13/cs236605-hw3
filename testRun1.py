@@ -10,7 +10,7 @@ OUTDIR = './results/Res4/'
 
 AllResults = {}
 
-bs = 32
+bs = 16
 h_dim = 256
 z_dim = 128
 Epochs = 100

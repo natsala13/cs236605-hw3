@@ -42,7 +42,7 @@ from hw3.autoencoder import AutoEncoderError
 import numpy as np
      
 Init_Name = 'MEGA_RUN'
-OUTDIR = './results/Res1/'
+OUTDIR = './results/Res3/'
 
 AllResults = {}
 
@@ -72,5 +72,5 @@ for bs in [16,32,64]:
 
             
             
-np.save(OUTDIR + 'Run1Final', AllResults)
+np.save(OUTDIR + 'Run3Final', AllResults)
 

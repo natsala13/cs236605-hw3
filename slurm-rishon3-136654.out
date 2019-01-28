@@ -1,0 +1,48 @@
+cpu-bind=MASK - rishon3, task  0  0 [32555]: mask 0x200000002 set
+cpu-bind=MASK - rishon3, task  0  0 [32555]: mask 0x200000002 set
+*** SLURM BATCH JOB 'test_job' STARTING ***
+*** Activating environment cs236605-hw ***
+File /home/natsala/.pytorch-datasets/lfw-bush.zip exists, skipping download.
+Extracting /home/natsala/.pytorch-datasets/lfw-bush.zip...
+Extracted 531 to /home/natsala/.pytorch-datasets/lfw/George_W_Bush
+train_batch:   0%|          | 0/60 [00:00<?, ?it/s]THCudaCheck FAIL file=/opt/conda/conda-bld/pytorch_1535493744281/work/aten/src/THC/THCGeneral.cpp line=663 error=11 : invalid argument
+/home/natsala/miniconda3/envs/cs236605-hw/lib/python3.7/site-packages/torch/nn/modules/upsampling.py:122: UserWarning: nn.Upsampling is deprecated. Use nn.functional.interpolate instead.
+  warnings.warn("nn.Upsampling is deprecated. Use nn.functional.interpolate instead.")
+
+Traceback (most recent call last):
+  File "testRun1.py", line 47, in <module>
+    h_dim=h_dim, z_dim=z_dim, x_sigma2=s)
+  File "/home/natsala/cs236605-hw3/hw3/experiments.py", line 144, in run_experiment
+    post_epoch_fn=post_epoch_fn)
+  File "/home/natsala/cs236605-hw3/hw3/training.py", line 90, in fit
+    train_result = self.train_epoch(dl_train, **kw)
+  File "/home/natsala/cs236605-hw3/hw3/training.py", line 143, in train_epoch
+    return self._foreach_batch(dl_train, self.train_batch, **kw)
+  File "/home/natsala/cs236605-hw3/hw3/training.py", line 215, in _foreach_batch
+    batch_res = forward_fn(data)
+  File "/home/natsala/cs236605-hw3/hw3/training.py", line 297, in train_batch
+    xr, z_mu, z_log_sigma2 = self.model(x)
+  File "/home/natsala/miniconda3/envs/cs236605-hw/lib/python3.7/site-packages/torch/nn/modules/module.py", line 477, in __call__
+    result = self.forward(*input, **kwargs)
+  File "/home/natsala/miniconda3/envs/cs236605-hw/lib/python3.7/site-packages/torch/nn/parallel/data_parallel.py", line 121, in forward
+    return self.module(*inputs[0], **kwargs[0])
+  File "/home/natsala/miniconda3/envs/cs236605-hw/lib/python3.7/site-packages/torch/nn/modules/module.py", line 477, in __call__
+    result = self.forward(*input, **kwargs)
+  File "/home/natsala/cs236605-hw3/hw3/autoencoder.py", line 228, in forward
+    z, mu, log_sigma2 = self.encode(x)
+  File "/home/natsala/cs236605-hw3/hw3/autoencoder.py", line 163, in encode
+    h = self.features_encoder(x)
+  File "/home/natsala/miniconda3/envs/cs236605-hw/lib/python3.7/site-packages/torch/nn/modules/module.py", line 477, in __call__
+    result = self.forward(*input, **kwargs)
+  File "/home/natsala/cs236605-hw3/hw3/autoencoder.py", line 49, in forward
+    return self.cnn(x)
+  File "/home/natsala/miniconda3/envs/cs236605-hw/lib/python3.7/site-packages/torch/nn/modules/module.py", line 477, in __call__
+    result = self.forward(*input, **kwargs)
+  File "/home/natsala/miniconda3/envs/cs236605-hw/lib/python3.7/site-packages/torch/nn/modules/container.py", line 91, in forward
+    input = module(input)
+  File "/home/natsala/miniconda3/envs/cs236605-hw/lib/python3.7/site-packages/torch/nn/modules/module.py", line 477, in __call__
+    result = self.forward(*input, **kwargs)
+  File "/home/natsala/miniconda3/envs/cs236605-hw/lib/python3.7/site-packages/torch/nn/modules/conv.py", line 301, in forward
+    self.padding, self.dilation, self.groups)
+RuntimeError: CUDA error: out of memory
+*** SLURM BATCH JOB 'test_job' DONE ***

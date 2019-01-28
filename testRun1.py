@@ -25,7 +25,7 @@ for lr in [0.01,0.005,0.001,0.0005]:
                             bs_train=32, bs_test=None, batches=100, epochs=Epochs,
                             early_stopping=10, checkpoints=None, lr=lr,
                             # Model params
-                            h_dim=h_dim, z_dim=z_, x_sigma2=s)
+                            h_dim=h_dim, z_dim=z_dim, x_sigma2=s)
             AllResults[name] = res
         except AutoEncoderError as e:
             AllResults[name] = 'Failed... ' + str(e)

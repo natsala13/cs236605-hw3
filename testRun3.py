@@ -26,7 +26,7 @@ for h in [128,256,512]:
                                     early_stopping=10, checkpoints=None, lr=lr,
                                     # Model params
                                     h_dim=h, z_dim=z, x_sigma2=s)
-                    AllResults[name] = res
+                AllResults[name] = res
             except AutoEncoderError as e:
                 AllResults[name] = 'Failed... ' + str(e)
             except OSError as e:

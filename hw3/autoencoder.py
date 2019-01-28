@@ -273,6 +273,10 @@ def vae_loss(x, xr, z_mu, z_log_sigma2, x_sigma2):
     
     
     z_dim = z_mu.shape[1]
+    
+    # z_mu - (N , z_dim)
+    # z log sigma - (N , z_dim)
+    
     kldiv_loss_vec = z_log_sigma2.exp().sum(dim=1) + z_mu.norm(dim=1).pow(2) - z_dim - z_log_sigma2.sum(dim=1)
     kldiv_loss = torch.mean(kldiv_loss_vec) / z_dim
     

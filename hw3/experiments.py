@@ -42,7 +42,7 @@ def run_experiment(run_name, out_dir='./results', seed=42,
                    # Training params
                    bs_train=128, bs_test=None, batches=100, epochs=100,
                    early_stopping=3, checkpoints=None, lr=1e-3,RTplot=False,
-                   print_every=2,
+                   print_every=100,
                    # Model params
                    h_dim=256, z_dim=5, x_sigma2=0.9,betas=(0.1,0.1),
                    **kw):

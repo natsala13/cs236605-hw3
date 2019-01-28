@@ -16,7 +16,7 @@ z_dim = 10
 Epochs = 40
 
 
-for bs in [8,16]:
+for bs in [16]:
     for lr in [0.001,0.0005,0.0001]:
         for s in [0.9,0.95]:
             try:

@@ -12,7 +12,7 @@ AllResults = {}
 
 bs = 16
 Epochs = 40
-# s = 0.9
+s = 0.95
 lr = 0.0005
 
 
@@ -35,7 +35,6 @@ def oneExp(h,z,s):
 
 for h in [128,256]:
     for z in [20,50]:
-        for s in [0.8,0.9]:
             oneExp(h,z,s)
             
 

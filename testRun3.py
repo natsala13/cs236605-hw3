@@ -35,7 +35,7 @@ def oneExp(h,z,s):
 
 for h in [128,256]:
     for z in [20,50]:
-        for s in [0.85,0.9,0.95]
+        for s in [0.85,0.9,0.95]:
             oneExp(h,z,s)
             
 

@@ -19,23 +19,12 @@ class EncoderCNN(nn.Module):
         # You can use any Conv layer parameters, use pooling or only strides,
         # use any activation functions, use BN or Dropout, etc.
         # ====== YOUR CODE: ======
-#         Cin = in_channels
-#         Cout = 64
-        
-#         while Cout < out_channels:
-#             modules += [nn.Conv2d(Cin,Cout,5,padding=2),nn.MaxPool2d(2),nn.ReLU()]
-#             Cin = Cout
-#             Cout *= 2
-            
-# #         modules += [nn.Conv2d(Cin,out_channels,5,padding=2)]
-#         modules += [nn.Conv2d(Cin,Cout,5,padding=2),nn.MaxPool2d(4)]
-        
         
         modules = []
         Cin = in_channels
         convs = [32,64,128]
         for Cout in convs:
-            modules += [nn.Conv2d(Cin,Cout,5,padding=2),nn.MaxPool2d(4),nn.ReLU()]
+            modules += [nn.Conv2d(Cin,Cout,5,padding=2),nn.BatchNorm2d(Cout),nn.MaxPool2d(4),nn.ReLU()]
             Cin = Cout
 
         
@@ -63,22 +52,6 @@ class DecoderCNN(nn.Module):
         # Output should be a batch of images, with same dimensions as the
         # inputs to the Encoder were.
         # ====== YOUR CODE: ======
-
-        
-#         Cin = in_channels
-#         Cout = int(Cin / 2)
-#         modules += [nn.Upsample(scale_factor=4, mode='bilinear')]
-#         while Cout >= 64:
-#             modules += [nn.ConvTranspose2d(Cin,Cout,5,padding=2)]
-#             modules += [nn.Upsample(scale_factor=2, mode='bilinear', align_corners = True)]
-#             modules += [nn.ReLU()]
-            
-#             Cin = Cout
-#             Cout = int(Cout / 2)
-            
-#         modules += [nn.Conv2d(Cin,out_channels,5,padding=2)]
-        
-        
         Cin = in_channels
         convs = [32,64,128]
         modules = []
@@ -89,6 +62,7 @@ class DecoderCNN(nn.Module):
         for Cout in reversed(convs):
             modules += [nn.ConvTranspose2d(Cin,Cout,5,padding=2)]
             modules += [nn.Upsample(scale_factor=4, mode='bilinear', align_corners = True)]
+            modules += [nn.BatchNorm2d(Cout)]
             modules += [nn.ReLU()]  
             Cin = Cout
             
@@ -172,22 +146,14 @@ class VAE(nn.Module):
         
         
         log_sigma2 = torch.mm(h,self.Whs) + self.Bhs
-#         print()
-#         print('############################### Encode ###################################')
-#         print('log sigma - ', log_sigma2)
-#         print('h shape - ', h.shape)
-#         print('h - ', h)
-#         print('Whs - ', self.Whs)
-#         print('Bhs - ', self.Bhs)
-        
-#         print('##########################################################################')
+
         
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         o = torch.zeros(1,self.z_dim)
         u = torch.normal(o,1).to(device)
 
         
-        z = mu + log_sigma2*u
+        z = mu + torch.exp(log_sigma2/2)*u
         
         # ========================
 

@@ -86,14 +86,6 @@ def run_experiment(run_name, out_dir='./results', seed=42,
     #  for you automatically.
     fit_res = None
     # ====== YOUR CODE: ======
-    # Hyperparams
-#     hp = part2_vae_hyperparams()
-#     batch_size = hp['batch_size']
-#     h_dim = hp['h_dim']
-#     z_dim = hp['z_dim']
-#     x_sigma2 = hp['x_sigma2']
-#     learn_rate = hp['learn_rate']
-#     betas = hp['betas']
     
     
     # Data

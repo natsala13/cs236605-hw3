@@ -22,7 +22,7 @@ class EncoderCNN(nn.Module):
         
         modules = []
         Cin = in_channels
-        convs = [32,64,128]
+        convs = [64,128]
         for Cout in convs:
             modules += [nn.Conv2d(Cin,Cout,5,padding=2),nn.BatchNorm2d(Cout),nn.MaxPool2d(4),nn.ReLU()]
             Cin = Cout
@@ -53,7 +53,7 @@ class DecoderCNN(nn.Module):
         # inputs to the Encoder were.
         # ====== YOUR CODE: ======
         Cin = in_channels
-        convs = [32,64,128]
+        convs = [64,128]
         modules = []
         
         

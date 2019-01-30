@@ -6,22 +6,22 @@ from hw3.autoencoder import AutoEncoderError
 import numpy as np
      
 Init_Name = 'MEGA_RUN'
-OUTDIR = './results/Res4/'
+OUTDIR = './results/Res5/'
 
 AllResults = {}
 
 bs = 16
-h_dim = 512
+h_dim = 256
 z_dim = 128
 Epochs = 100
 lr = 0.0005
-s = 0.9
+s = 0.5
 betas = (0.5,0.5)
 
 
 
 try:           
-    name = 'Big_Architequre'
+    name = 'Small_sigma'
     res = run_experiment(Init_Name + name, out_dir=OUTDIR, seed=42,
                             # Training params
                             bs_train=8, bs_test=None, batches=100, epochs=Epochs,

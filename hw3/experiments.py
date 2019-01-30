@@ -44,7 +44,7 @@ def run_experiment(run_name, out_dir='./results', seed=42,
                    early_stopping=3, checkpoints=None, lr=1e-3,RTplot=False,
                    print_every=100,
                    # Model params
-                   h_dim=256, z_dim=5, x_sigma2=0.9,betas=(0.1,0.1),
+                   h_dim=256, z_dim=5, x_sigma2=0.9,betas=(0.9,0.999),
                    **kw):
     """
         Execute a single run of experiment 1 with a single configuration.

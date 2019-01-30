@@ -231,7 +231,7 @@ def vae_loss(x, xr, z_mu, z_log_sigma2, x_sigma2):
     
     
     diff = torch.mm(r,r.transpose(0,1))
-    data_loss_vec = torch.diag(diff) / x_sigma2
+    data_loss_vec = torch.diag(diff) 
     
     data_loss = torch.mean(data_loss_vec) / D
 
@@ -249,7 +249,7 @@ def vae_loss(x, xr, z_mu, z_log_sigma2, x_sigma2):
     
     
     
-    loss = kldiv_loss + data_loss
+    loss = kldiv_loss + data_loss/ x_sigma2
     
     if loss > 10000 or torch.isnan(loss):
         raise AutoEncoderError('loss is Inf/Nan...')

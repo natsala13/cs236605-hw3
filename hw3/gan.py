@@ -24,7 +24,7 @@ class Discriminator(nn.Module):
         # ====== YOUR CODE: ======
         modules = []
         Cin = in_size[0]
-        convs = [32,64,128]
+        convs = [64,128]
         
         for Cout in convs:
             modules += [nn.Conv2d(Cin,Cout,5,padding=2),nn.BatchNorm2d(Cout),nn.MaxPool2d(4),nn.ReLU()]
@@ -32,7 +32,14 @@ class Discriminator(nn.Module):
 
         self.feature_extractor = nn.Sequential(*modules)
         
-        modules = [nn.Linear(128,64),nn.ReLU(),nn.Linear(64,32),nn.ReLU(),nn.Linear(32,1)]
+#         modules = [nn.Linear(128,64),nn.ReLU(),nn.Linear(64,32),nn.ReLU(),nn.Linear(32,1)]
+        modules = []
+        hidden_dims = [1024,256,64,1]
+        Cin = Cin * 16
+        
+        for Cout in hidden_dims:
+            modules += [nn.Linear(Cin,Cout),nn.ReLU()]
+            Cin = Cout
         
         self.classifier = nn.Sequential(*modules)
         # ========================

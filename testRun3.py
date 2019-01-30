@@ -6,7 +6,7 @@ from hw3.autoencoder import AutoEncoderError
 import numpy as np
      
 Init_Name = 'MEGA_RUN'
-OUTDIR = './results/Res2/'
+OUTDIR = './results/Res1/'
 
 AllResults = {}
 
@@ -14,11 +14,13 @@ bs = 16
 Epochs = 40
 # s = 0.95
 lr = 0.0005
+h = 256
+z = 128
 
 
-def oneExp(h,z,s):
+def oneExp(bs,s):
     try:
-        name = 'h_' + str(h) + 'z_' + str(z) + 's_' + str(s)
+        name = 's_' + str(s) + 'bs_' + str(bs)
         res = run_experiment(Init_Name + name, out_dir=OUTDIR, seed=42,
                              # Training params
                              bs_train=bs, bs_test=None, batches=100, epochs=Epochs,
@@ -33,10 +35,10 @@ def oneExp(h,z,s):
         AllResults[name] = 'Failed... ' + str(e)
 
 
-for h in [128,256]:
-    for z in [20,50]:
-        for s in [1,1.2,1.5]:
-            oneExp(h,z,s)
+
+for s in [0.8,0.85,0.9,1]:
+    for bs in [16,32]:
+        oneExp(bs,s)
             
 
             

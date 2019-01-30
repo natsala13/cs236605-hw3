@@ -28,7 +28,7 @@ class EncoderCNN(nn.Module):
             Cin = Cout
 
         
-        modules += [nn.Conv2d(Cin,out_channels,5,padding=2)]
+        modules += [nn.MaxPool2d(4),nn.Conv2d(Cin,out_channels,5,padding=2)]
             
             
         # ========================
@@ -66,7 +66,7 @@ class DecoderCNN(nn.Module):
             modules += [nn.ReLU()]  
             Cin = Cout
             
-        modules += [nn.Conv2d(Cin,out_channels,5,padding=2)]
+        modules += [nn.Upsample(scale_factor=4, mode='bilinear', align_corners = True), nn.Conv2d(Cin,out_channels,5,padding=2)]
         
         # ========================
         self.cnn = nn.Sequential(*modules)

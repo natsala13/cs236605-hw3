@@ -100,6 +100,7 @@ def run_experiment(run_name, out_dir='./results', seed=42,
     decoder = autoencoder.DecoderCNN(in_channels=h_dim, out_channels=im_size[0])
     vae = autoencoder.VAE(encoder, decoder, im_size, z_dim)
     vae_dp = DataParallel(vae).to(device)
+    print(vae)
 
     # Optimizer
     optimizer = optim.Adam(vae.parameters(), lr=lr, betas=betas)
@@ -127,6 +128,7 @@ def run_experiment(run_name, out_dir='./results', seed=42,
     checkpoint_file_final = f'{checkpoint_file}_final'
     if os.path.isfile(f'{checkpoint_file}.pt'):
         os.remove(f'{checkpoint_file}.pt')
+    
     
 
 

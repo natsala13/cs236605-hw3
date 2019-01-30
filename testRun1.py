@@ -21,7 +21,7 @@ s = 0.9
 
 
 try:           
-    name = 'lr_' + str(lr) + 's_' + str(s)
+    name = 'Big_Architequre_NoBNAtEnd'
     res = run_experiment(Init_Name + name, out_dir=OUTDIR, seed=42,
                             # Training params
                             bs_train=8, bs_test=None, batches=100, epochs=Epochs,

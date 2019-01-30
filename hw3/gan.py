@@ -34,8 +34,9 @@ class Discriminator(nn.Module):
         
 #         modules = [nn.Linear(128,64),nn.ReLU(),nn.Linear(64,32),nn.ReLU(),nn.Linear(32,1)]
         modules = []
-        hidden_dims = [1024,256,64,1]
         Cin = Cin * 16
+        hidden_dims = [1024,256,128,1]
+        
         
         for Cout in hidden_dims:
             modules += [nn.Linear(Cin,Cout),nn.ReLU()]
@@ -82,7 +83,7 @@ class Generator(nn.Module):
         # ====== YOUR CODE: ======
         Cin = z_dim
         modules = []
-        hidden_dims = [256,512]
+        hidden_dims = [256,1024,2048]
         
         for Cout in hidden_dims:
             modules += [nn.Linear(Cin,Cout),nn.ReLU()]
@@ -90,18 +91,21 @@ class Generator(nn.Module):
         
         self.transform = nn.Sequential(*modules)
         
-        convs = [32,64,128]
+        print(Cin / 16)
+        Cin = Cin // 16
+        convs = [64,3]
         modules = []
 
-        for Cout in reversed(convs):
-            modules += [nn.ConvTranspose2d(Cin,Cout,5,padding=2)]
+        for Cout in convs:
+#             modules += [nn.ConvTranspose2d(Cin,Cout,5,padding=2)]
+            modules += [nn.Conv2d(Cin,Cout,5,padding=2)]
             modules += [nn.Upsample(scale_factor=4, mode='bilinear', align_corners = True)]
             modules += [nn.BatchNorm2d(Cout)]
             modules += [nn.ReLU()]  
             Cin = Cout
             
             
-        modules += [nn.ConvTranspose2d(Cin,3,5,padding=2)]
+#         modules += [nn.ConvTranspose2d(Cin,3,5,padding=2)]
 
         
         self.generator = nn.Sequential(*modules)
@@ -144,7 +148,8 @@ class Generator(nn.Module):
         
         print('z shape - ' , z.shape)
         N = z.shape[0]
-        z = z.view(N,-1,1,1)
+        z = z.view(N,-1,4,4)
+        print('z2 shape - ' , z.shape)
         
         x = self.generator(z)
         # ========================

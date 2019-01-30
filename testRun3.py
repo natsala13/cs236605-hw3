@@ -6,21 +6,21 @@ from hw3.autoencoder import AutoEncoderError
 import numpy as np
      
 Init_Name = 'MEGA_RUN'
-OUTDIR = './results/Res1/'
+OUTDIR = './results/Res3/'
 
 AllResults = {}
 
 bs = 16
 Epochs = 40
 # s = 0.95
-lr = 0.0005
+# lr = 0.0005
 h = 256
 z = 128
 
 
-def oneExp(bs,s):
+def oneExp(lr,s):
     try:
-        name = 's_' + str(s) + 'bs_' + str(bs)
+        name = 'lr_' + str(lr) + 'bs_' + str(bs)
         res = run_experiment(Init_Name + name, out_dir=OUTDIR, seed=42,
                              # Training params
                              bs_train=bs, bs_test=None, batches=100, epochs=Epochs,
@@ -37,8 +37,8 @@ def oneExp(bs,s):
 
 
 for s in [0.8,0.85,0.9,1]:
-    for bs in [16,32]:
-        oneExp(bs,s)
+    for lr in [0.0008,0.0005,0.0003,0.0001]:
+        oneExp(lr,s)
             
 
             

@@ -22,7 +22,19 @@ class Discriminator(nn.Module):
         # You can then use either an affine layer or another conv layer to
         # flatten the features.
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+        modules = []
+        Cin = in_size[0]
+        convs = [32,64,128]
+        
+        for Cout in convs:
+            modules += [nn.Conv2d(Cin,Cout,5,padding=2),nn.BatchNorm2d(Cout),nn.MaxPool2d(4),nn.ReLU()]
+            Cin = Cout
+
+        self.feature_extractor = nn.Sequential(*modules)
+        
+        modules = [nn.Linear(128,64),nn.ReLU(),nn.Linear(64,32),nn.ReLU(),nn.Linear(32,1)]
+        
+        self.classifier = nn.Sequential(*modules)
         # ========================
 
     def forward(self, x):
@@ -35,7 +47,12 @@ class Discriminator(nn.Module):
         # No need to apply sigmoid to obtain probability - we'll combine it
         # with the loss due to improved numerical stability.
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+        x = self.feature_extractor(x)
+        
+        N = x.shape[0]
+        x = x.view(N,-1)
+        
+        y = self.classifier(x)
         # ========================
         return y
 
@@ -56,7 +73,32 @@ class Generator(nn.Module):
         # section or implement something new.
         # You can assume a fixed image size.
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+        Cin = z_dim
+        modules = []
+        hidden_dims = [256,512]
+        
+        for Cout in hidden_dims:
+            modules += [nn.Linear(Cin,Cout),nn.ReLU()]
+            Cin = Cout
+        
+        self.transform = nn.Sequential(*modules)
+        
+        convs = [32,64,128]
+        modules = []
+
+        for Cout in reversed(convs):
+            modules += [nn.ConvTranspose2d(Cin,Cout,5,padding=2)]
+            modules += [nn.Upsample(scale_factor=4, mode='bilinear', align_corners = True)]
+            modules += [nn.BatchNorm2d(Cout)]
+            modules += [nn.ReLU()]  
+            Cin = Cout
+            
+            
+        modules += [nn.ConvTranspose2d(Cin,3,5,padding=2)]
+
+        
+        self.generator = nn.Sequential(*modules)
+        
         # ========================
 
     def sample(self, n, with_grad=False):
@@ -72,7 +114,12 @@ class Generator(nn.Module):
         # Generate n latent space samples and return their reconstructions.
         # Don't use a loop.
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+            
+        o = torch.zeros(n,self.z_dim)
+        z = torch.normal(o,1).to(device)
+            
+        samples = self.forward(z)
         # ========================
         return samples
 
@@ -86,7 +133,13 @@ class Generator(nn.Module):
         # Don't forget to make sure the output instances have the same scale
         # as the original (real) images.
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+        z = self.transform(z)
+        
+        print('z shape - ' , z.shape)
+        N = z.shape[0]
+        z = z.view(N,-1,1,1)
+        
+        x = self.generator(z)
         # ========================
         return x
 

@@ -28,7 +28,8 @@ class EncoderCNN(nn.Module):
             Cin = Cout
 
         
-        modules += [nn.MaxPool2d(4),nn.Conv2d(Cin,out_channels,5,padding=2)]
+#         modules += [nn.MaxPool2d(4),nn.Conv2d(Cin,out_channels,5,padding=2)]
+        modules += [nn.Conv2d(Cin,out_channels,5,padding=2)]
             
             
         # ========================
@@ -66,7 +67,8 @@ class DecoderCNN(nn.Module):
             modules += [nn.ReLU()]  
             Cin = Cout
             
-        modules += [nn.Upsample(scale_factor=4, mode='bilinear', align_corners = True), nn.Conv2d(Cin,out_channels,5,padding=2)]
+#         modules += [nn.Upsample(scale_factor=4, mode='bilinear', align_corners = True), nn.Conv2d(Cin,out_channels,5,padding=2)]
+        modules += [nn.Conv2d(Cin,out_channels,5,padding=2)]
         
         # ========================
         self.cnn = nn.Sequential(*modules)
@@ -95,8 +97,11 @@ class VAE(nn.Module):
 
         # TODO: Add parameters needed for encode() and decode().
         # ====== YOUR CODE: ======
+        self.spatial = 4
+        
+        
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        D = self.features_shape[0]
+        D = self.features_shape[0] * self.spatial * self.spatial
         
         m_w = torch.zeros(D,z_dim)
         m_b = torch.zeros(1,z_dim)
@@ -138,9 +143,6 @@ class VAE(nn.Module):
         
         h = h.view(h.shape[0],-1)
         
-        
-        
-        
         mu = torch.mm(h,self.Whu)
         mu = mu + self.Bhu
         
@@ -165,7 +167,7 @@ class VAE(nn.Module):
         # 2. Apply features decoder.
         # ====== YOUR CODE: ======
         h = torch.mm(z,self.Dec_T) + self.Dec_b
-        h = h.view(h.shape[0],-1,1,1)
+        h = h.view(h.shape[0],-1,self.spatial,self.spatial)
         
         x_rec = self.features_decoder(h)
         # ========================

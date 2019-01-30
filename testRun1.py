@@ -25,7 +25,7 @@ try:
     res = run_experiment(Init_Name + name, out_dir=OUTDIR, seed=42,
                             # Training params
                             bs_train=8, bs_test=None, batches=100, epochs=Epochs,
-                            early_stopping=10, checkpoints=None, lr=lr,betas=betas
+                            early_stopping=10, checkpoints=None, lr=lr,betas=betas,
                             # Model params
                             h_dim=h_dim, z_dim=z_dim, x_sigma2=s)
     AllResults[name] = res

@@ -88,6 +88,7 @@ class DecoderCNN(nn.Module):
         h = self.conv1(h)
         print(h)
         h = self.bn1(h)
+        print(type(h))
         print(h)
         h = self.rl(h)
     

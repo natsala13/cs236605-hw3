@@ -23,7 +23,7 @@ label_noise = 0.3
 
 def oneExp(gen_lr,des_lr,generator_optim,dsc_optim):
     try:
-        name = Init_Name + 'DSC_' + dsc_optim + 'GEN_' + generator_optim + 'genlr_' + gen_lr + 'deslr' + str(des_lr)
+        name = Init_Name + 'DSC_' + dsc_optim + 'GEN_' + generator_optim + 'genlr_' + str(gen_lr) + 'deslr' + str(des_lr)
         res = run_experiment_GAN(name, out_dir=OUTDIR, seed=42,
                                 # Training params
                                 bs_train=8, bs_test=None, batches=100, epochs=100,

@@ -86,7 +86,8 @@ class DecoderCNN(nn.Module):
 #         print('cnn device - ' , self.cnn.device)
   
         h = self.conv1(h)
-#         h = self.bn1(h)
+        h = self.bn1(h)
+        print(h)
         h = self.rl(h)
     
     

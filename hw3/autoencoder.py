@@ -70,7 +70,12 @@ class DecoderCNN(nn.Module):
             
         modules += [nn.ConvTranspose2d(Cin,out_channels,5,padding=2)]
     
-    
+        
+        
+        self.conv1 = nn.ConvTranspose2d(in_channels,256,5,stride=2,padding=2,output_padding=1)
+        self.bn1 = nn.BatchNorm2d(256).to(device)
+        self.rl = nn.ReLU()
+        
         # ========================
         self.modules = modules
         self.cnn = nn.Sequential(*modules)
@@ -79,14 +84,20 @@ class DecoderCNN(nn.Module):
         # Tanh to scale to [-1, 1] (same dynamic range as original images).
         print('h device - ', h.device)
 #         print('cnn device - ' , self.cnn.device)
-        
-        for m in self.modules:
-            print(m)
-            try:
-                print('m device - ', m.device)
-            except:
-                print('################ m has no device ##############')
-            h = m(h)
+  
+        h = self.conv1(h)
+        h = self.bn1(h)
+        h = self.rl(h)
+    
+    
+    
+#         for m in self.modules:
+#             print(m)
+#             try:
+#                 print('m device - ', m.device)
+#             except:
+#                 print('################ m has no device ##############')
+#             h = m(h)
     
     
 #         x = self.cnn(h)

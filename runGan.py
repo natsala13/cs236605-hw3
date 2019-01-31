@@ -2,7 +2,7 @@
 
 from hw3.answers import part2_vae_hyperparams
 from hw3.experiments import run_experiment_GAN
-from hw3.autoencoder import AutoEncoderError 
+# from hw3.autoencoder import AutoEncoderError 
 import numpy as np
      
 Init_Name = 'MEGA_RUN'
@@ -28,8 +28,6 @@ try:
                             # Model params
                             h_dim=256, z_dim=128)
     AllResults[name] = res
-except AutoEncoderError as e:
-    AllResults[name] = 'Failed... ' + str(e)
 except OSError as e:
     AllResults[name] = 'Failed... ' + str(e)
     

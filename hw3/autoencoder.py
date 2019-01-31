@@ -72,6 +72,7 @@ class DecoderCNN(nn.Module):
     
     
         # ========================
+        self.modules = modules
         self.cnn = nn.Sequential(*modules)
 
     def forward(self, h):
@@ -79,8 +80,12 @@ class DecoderCNN(nn.Module):
         print('h device - ', h.device)
 #         print('cnn device - ' , self.cnn.device)
         
-        x = self.cnn(h)
-        return torch.tanh(x)
+        for m in self.modules:
+            h = m(h)
+    
+    
+#         x = self.cnn(h)
+        return torch.tanh(h)
 
 
 class VAE(nn.Module):

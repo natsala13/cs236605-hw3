@@ -6,7 +6,7 @@ from hw3.autoencoder import AutoEncoderError
 import numpy as np
      
 Init_Name = 'MEGA_RUN'
-OUTDIR = './results/Res5/'
+OUTDIR = './results/Res6/'
 
 AllResults = {}
 

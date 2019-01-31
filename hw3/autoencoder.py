@@ -103,22 +103,30 @@ class VAE(nn.Module):
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         D = self.features_shape[0] * self.spatial * self.spatial
         
-        m_w = torch.zeros(D,z_dim)
-        m_b = torch.zeros(1,z_dim)
+#         m_w = torch.zeros(D,z_dim)
+#         m_b = torch.zeros(1,z_dim)
         
-        s = 1 / D
+#         s = 1 / D
         
-        self.Whu = torch.normal(m_w,s).to(device)
-        self.Bhu = torch.normal(m_b,1).to(device)
-        self.Whs = torch.normal(m_w,s).to(device)
-        self.Bhs = torch.normal(m_b,1).to(device)
+#         self.Whu = torch.normal(m_w,s).to(device)
+#         self.Bhu = torch.normal(m_b,1).to(device)
+#         self.Whs = torch.normal(m_w,s).to(device)
+#         self.Bhs = torch.normal(m_b,1).to(device)
         
         
-        m_w = torch.zeros(z_dim,D)
-        m_b = torch.zeros(1,D)
         
-        self.Dec_T = torch.normal(m_w,1).to(device)
-        self.Dec_b = torch.normal(m_b,1).to(device)
+#         m_w = torch.zeros(z_dim,D)
+#         m_b = torch.zeros(1,D)
+        
+#         self.Dec_T = torch.normal(m_w,1).to(device)
+#         self.Dec_b = torch.normal(m_b,1).to(device)
+        
+        
+        #using python nn
+        self.Utransformation = nn.Linear(D,z_dim)
+        self.Stransformation = nn.Linear(D,z_dim)
+        self.Dectransformation = nn.Linear(z_dim,D)
+        
         
         # ========================
 
@@ -143,18 +151,25 @@ class VAE(nn.Module):
         
         h = h.view(h.shape[0],-1)
         
-        mu = torch.mm(h,self.Whu)
-        mu = mu + self.Bhu
+#         mu = torch.mm(h,self.Whu)
+#         mu = mu + self.Bhu
         
         
-        log_sigma2 = torch.mm(h,self.Whs) + self.Bhs
+#         log_sigma2 = torch.mm(h,self.Whs) + self.Bhs
 
         
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         o = torch.zeros(1,self.z_dim)
         u = torch.normal(o,1).to(device)
-
         
+        
+        
+        mu = self.Utransformation(h)
+        log_sigma2 = self.Stransformation(h)
+        
+    
+    
+    
         z = mu + torch.exp(log_sigma2/2)*u
         
         # ========================
@@ -166,7 +181,10 @@ class VAE(nn.Module):
         # 1. Convert latent to features.
         # 2. Apply features decoder.
         # ====== YOUR CODE: ======
-        h = torch.mm(z,self.Dec_T) + self.Dec_b
+#         h = torch.mm(z,self.Dec_T) + self.Dec_b
+        h = self.Dectransformation(z)
+
+
         h = h.view(h.shape[0],-1,self.spatial,self.spatial)
         
         x_rec = self.features_decoder(h)

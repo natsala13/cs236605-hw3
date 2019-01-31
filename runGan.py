@@ -21,10 +21,10 @@ lr = 0.0005
 
 try:
     name = 'Gan_First_Run'
-    res = run_experiment_GAN(name, out_dir='results/', seed=12,
+    res = run_experiment_GAN(name, out_dir=OUT_DIR, seed=42,
                             # Training params
                             bs_train=8, bs_test=None, batches=100, epochs=100,
-                            early_stopping=10, checkpoints=None,
+                            early_stopping=10, checkpoints=None,print_every=5,
                             # Model params
                             h_dim=256, z_dim=128)
     AllResults[name] = res

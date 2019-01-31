@@ -72,12 +72,7 @@ class DecoderCNN(nn.Module):
     
         
         
-        self.conv1 = nn.ConvTranspose2d(in_channels,128,5,stride=2,padding=2,output_padding=1)
-        self.bn1 = nn.BatchNorm2d(128).to(device)
-        self.rl = nn.ReLU()
-        
         # ========================
-        self.modules = modules
         self.cnn = nn.Sequential(*modules)
 
     def forward(self, h):

@@ -64,7 +64,7 @@ class DecoderCNN(nn.Module):
 
         for Cout in reversed(convs):
             modules += [nn.ConvTranspose2d(Cin,Cout,5,stride=2,padding=2,output_padding=1)]
-            modules += [nn.BatchNorm2d(Cout).to(device)]
+#             modules += [nn.BatchNorm2d(Cout).to(device)]
             modules += [nn.ReLU()]  
             Cin = Cout
             
@@ -82,18 +82,18 @@ class DecoderCNN(nn.Module):
 
     def forward(self, h):
         # Tanh to scale to [-1, 1] (same dynamic range as original images).
-        print('h device - ', h.device)
-#         print('cnn device - ' , self.cnn.device)
+#         print('h device - ', h.device)
+# #         print('cnn device - ' , self.cnn.device)
     
     
-        h = self.conv1(h)
-        print(h)
-        h = self.bn1(h)
-        print(type(h))
-        print('h shape - ', h.shape)
-        print(h[0].cpu())
+#         h = self.conv1(h)
+#         print(h)
+#         h = self.bn1(h)
+#         print(type(h))
+#         print('h shape - ', h.shape)
+#         print(h[0].cpu())
         
-        h = h.cpu()
+#         h = h.cpu()
         
 #         try:
 #             h = self.rl(h_cpu)
@@ -112,7 +112,7 @@ class DecoderCNN(nn.Module):
 #             print('##########################################################################')
         
         
-        h = self.rl(h)
+#         h = self.rl(h)
     
     
     
@@ -125,8 +125,8 @@ class DecoderCNN(nn.Module):
 #             h = m(h)
     
     
-#         x = self.cnn(h)
-        return torch.tanh(h)
+        x = self.cnn(h)
+        return torch.tanh(x)
 
 
 class VAE(nn.Module):

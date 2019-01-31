@@ -65,7 +65,7 @@ class DecoderCNN(nn.Module):
             modules += [nn.ConvTranspose2d(Cin,Cout,5,stride=2,padding=2,output_padding=1)]
 #             modules += [nn.Upsample(scale_factor=2, mode='bilinear', align_corners = True)]
             modules += [nn.BatchNorm2d(Cout)]
-            modules += [nn.ReLU()]  
+#             modules += [nn.ReLU()]  
             Cin = Cout
             
         modules += [nn.ConvTranspose2d(Cin,out_channels,5,padding=2)]

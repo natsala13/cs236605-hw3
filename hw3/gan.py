@@ -39,7 +39,7 @@ class Discriminator(nn.Module):
         
         modules = []        
         for Cout in hidden_dims:
-            modules += [nn.Linear(Cin,Cout).to(device),nn.ReLU()]
+            modules += [nn.Linear(Cin,Cout).to(device),nn.LeakyReLU()]
             Cin = Cout
         
         self.classifier = nn.Sequential(*modules)
@@ -88,7 +88,7 @@ class Generator(nn.Module):
         
         modules = []        
         for Cout in hidden_dims:
-            modules += [nn.Linear(Cin,Cout).to(device),nn.ReLU()]
+            modules += [nn.Linear(Cin,Cout).to(device),nn.LeakyReLU()]
             Cin = Cout
         
         self.transform = nn.Sequential(*modules)

@@ -25,7 +25,7 @@ class EncoderCNN(nn.Module):
         convs = [64,128] + [out_channels]
         for Cout in convs:
 #             modules += [nn.Conv2d(Cin,Cout,5,padding=2),nn.MaxPool2d(2),nn.BatchNorm2d(Cout),nn.ReLU()]
-            modules += [nn.Conv2d(Cin,Cout,5,stride=2,padding=2),nn.BatchNorm2d(Cout),nn.ReLU()]
+            modules += [nn.Conv2d(Cin,Cout,5,stride=2,padding=2),nn.BatchNorm2d(Cout),nn.LeakyReLU()]
             Cin = Cout
 
         
@@ -63,9 +63,11 @@ class DecoderCNN(nn.Module):
         
 
         for Cout in reversed(convs):
+            modules += [nn.LeakyReLU()]  
+            modules += [nn.BatchNorm2d(Cin).to(device)]
             modules += [nn.ConvTranspose2d(Cin,Cout,5,stride=2,padding=2,output_padding=1)]
-#             modules += [nn.BatchNorm2d(Cout).to(device)]
-            modules += [nn.ReLU()]  
+
+
             Cin = Cout
             
         modules += [nn.ConvTranspose2d(Cin,out_channels,5,padding=2)]

@@ -24,7 +24,8 @@ class EncoderCNN(nn.Module):
         Cin = in_channels
         convs = [64,128] + [out_channels]
         for Cout in convs:
-            modules += [nn.Conv2d(Cin,Cout,5,padding=2),nn.MaxPool2d(2),nn.BatchNorm2d(Cout),nn.ReLU()]
+#             modules += [nn.Conv2d(Cin,Cout,5,padding=2),nn.MaxPool2d(2),nn.BatchNorm2d(Cout),nn.ReLU()]
+            modules += [nn.Conv2d(Cin,Cout,5,stride=2,padding=2),nn.BatchNorm2d(Cout),nn.ReLU()]
             Cin = Cout
 
         
@@ -61,15 +62,16 @@ class DecoderCNN(nn.Module):
 #         modules += [nn.Upsample(scale_factor=4, mode='bilinear')]
 
         for Cout in reversed(convs):
-            modules += [nn.ConvTranspose2d(Cin,Cout,5,padding=2)]
-            modules += [nn.Upsample(scale_factor=2, mode='bilinear', align_corners = True)]
+            modules += [nn.ConvTranspose2d(Cin,Cout,5,stride=2,padding=2,output_padding=1)]
+#             modules += [nn.Upsample(scale_factor=2, mode='bilinear', align_corners = True)]
             modules += [nn.BatchNorm2d(Cout)]
             modules += [nn.ReLU()]  
             Cin = Cout
             
-#         modules += [nn.Upsample(scale_factor=4, mode='bilinear', align_corners = True), nn.Conv2d(Cin,out_channels,5,padding=2)]
-        modules += [nn.Conv2d(Cin,out_channels,5,padding=2)]
-        
+        modules += [nn.ConvTranspose2d(Cin,out_channels,5,padding=2)]
+    
+    
+#         modules = [nn.ConvTranspose2d(in_channels,out_channels,5,stride=2,padding=2,output_padding=1)]
         # ========================
         self.cnn = nn.Sequential(*modules)
 

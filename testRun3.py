@@ -5,7 +5,7 @@ from hw3.experiments import run_experiment
 from hw3.autoencoder import AutoEncoderError 
 import numpy as np
      
-Init_Name = 'MEGA_RUN'
+Init_Name = 'BIG_ARCH'
 OUTDIR = './results/Res4/'
 
 AllResults = {}
@@ -20,7 +20,7 @@ z = 128
 
 def oneExp(lr,s):
     try:
-        name = 'lr_' + str(lr) + 'bs_' + str(bs)
+        name = 'lr_' + str(lr) + 's_' + str(s)
         res = run_experiment(Init_Name + name, out_dir=OUTDIR, seed=42,
                              # Training params
                              bs_train=bs, bs_test=None, batches=100, epochs=Epochs,
@@ -35,12 +35,10 @@ def oneExp(lr,s):
         AllResults[name] = 'Failed... ' + str(e)
 
 
-
 for s in [0.8,0.85,0.9,1]:
     for lr in [0.0008,0.0005,0.0003,0.0001]:
         oneExp(lr,s)
             
-
             
             
 np.save(OUTDIR + 'RunFinal', AllResults)

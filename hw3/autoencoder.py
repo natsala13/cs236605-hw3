@@ -84,7 +84,6 @@ class DecoderCNN(nn.Module):
         # Tanh to scale to [-1, 1] (same dynamic range as original images).
         print('h device - ', h.device)
 #         print('cnn device - ' , self.cnn.device)
-        h = h.cpu()
     
     
         h = self.conv1(h)
@@ -94,7 +93,7 @@ class DecoderCNN(nn.Module):
         print('h shape - ', h.shape)
         print(h[0].cpu())
         
-        h_cpu = h.cpu()
+        h = h.cpu()
         
 #         try:
 #             h = self.rl(h_cpu)

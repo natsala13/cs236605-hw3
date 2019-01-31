@@ -81,6 +81,11 @@ class DecoderCNN(nn.Module):
 #         print('cnn device - ' , self.cnn.device)
         
         for m in self.modules:
+            print(m)
+            try:
+                print('m device - ', m.device)
+            except:
+                print('################ m has no device ##############')
             h = m(h)
     
     

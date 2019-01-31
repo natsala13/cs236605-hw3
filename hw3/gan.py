@@ -21,29 +21,9 @@ class Discriminator(nn.Module):
         # section or implement something new.
         # You can then use either an affine layer or another conv layer to
         # flatten the features.
-        # ====== YOUR CODE: ======
-        in_channels = in_size[0]
-        out_channels = 256
-        
-        out_spatial = 8 # The encoder returns (out_channels,8,8)
-
-        
-        self.feature_extractor = EncoderCNN(in_channels,out_channels)
-    
-        # Now lets create the classifier part
-        # After convolution we get (ou_channels,8,8)
-        Cin = out_channels * out_spatial * out_spatial
-        hidden_dims = [2048,256,1]
-        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        
-        
-        modules = []        
-        for Cout in hidden_dims:
-            modules += [nn.Linear(Cin,Cout).to(device),nn.LeakyReLU()]
-            Cin = Cout
-        
-        self.classifier = nn.Sequential(*modules)
-        # ========================
+        self.encoder = EncoderCNN(self.in_size[0], 256)
+        self.linear1 = nn.Linear(16384, 512)
+        self.linear2 = nn.Linear(512, 1)
 
     def forward(self, x):
         """
@@ -54,14 +34,8 @@ class Discriminator(nn.Module):
         # TODO: Implement discriminator forward pass.
         # No need to apply sigmoid to obtain probability - we'll combine it
         # with the loss due to improved numerical stability.
-        # ====== YOUR CODE: ======
-        x = self.feature_extractor(x)
-        
-        N = x.shape[0]
-        x = x.view(N,-1)
-        
-        y = self.classifier(x)
-        # ========================
+        h = self.encoder(x).view(x.shape[0], -1)
+        y = self.linear2(F.leaky_relu(self.linear1(h), negative_slope=0.2))
         return y
 
 
@@ -80,27 +54,10 @@ class Generator(nn.Module):
         # To combine image features you can use the DecoderCNN from the VAE
         # section or implement something new.
         # You can assume a fixed image size.
-        # ====== YOUR CODE: ======
-        Cin = z_dim
-        hidden_dims = [256,2048,16384]
-        self.out_spatial = 8 # The encoder returns (out_channels,8,8)
-        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        self.featuremap_size = featuremap_size
+        self.linear = nn.Linear(self.z_dim, 512 * self.featuremap_size ** 2)
+        self.decoder = DecoderCNN(256, out_channels)
         
-        modules = []        
-        for Cout in hidden_dims:
-            modules += [nn.Linear(Cin,Cout).to(device),nn.LeakyReLU()]
-            Cin = Cout
-        
-        self.transform = nn.Sequential(*modules)
-        
-#         print('Cin - ', Cin / (self.out_spatial * self.out_spatial))
-        Cin = Cin // (self.out_spatial * self.out_spatial)
-        
-        
-        
-        # We will use the Model from Part 2
-        self.generator = DecoderCNN(Cin,out_channels)
-        # ========================
 
     def sample(self, n, with_grad=False):
         """
@@ -114,20 +71,10 @@ class Generator(nn.Module):
         # TODO: Sample from the model.
         # Generate n latent space samples and return their reconstructions.
         # Don't use a loop.
-        # ====== YOUR CODE: ======
-        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-            
-
-        
         with torch.set_grad_enabled(with_grad):
-#             z = torch.randn(n, self.z_dim, device=device)
-#             samples = self(z)
-            o = torch.zeros(n,self.z_dim)
-            z = torch.normal(o,1).to(device)
-
-            samples = self.forward(z)
-        
-        # ========================
+            z = torch.randn(n, self.z_dim, device=device)
+            samples = self(z)
+            
         return samples
 
     def forward(self, z):
@@ -139,14 +86,8 @@ class Generator(nn.Module):
         # TODO: Implement the Generator forward pass.
         # Don't forget to make sure the output instances have the same scale
         # as the original (real) images.
-        # ====== YOUR CODE: ======
-        z = self.transform(z)
-        
-        N = z.shape[0]
-        z = z.view(N,-1,self.out_spatial,self.out_spatial)
-        
-        x = self.generator(z)
-        # ========================
+        h = self.linear(z).view(z.shape[0], 512, self.featuremap_size, self.featuremap_size)
+        x = self.decoder(h)
         return x
 
 
@@ -168,14 +109,13 @@ def discriminator_loss_fn(y_data, y_generated, data_label=0, label_noise=0.0):
     assert data_label == 1 or data_label == 0
     # TODO: Implement the discriminator loss.
     # See torch's BCEWithLogitsLoss for a numerically stable implementation.
-    # ====== YOUR CODE: ======
-    noise1 = label_noise * torch.rand_like(y_data) - (label_noise/2)
-    noise2 = label_noise * torch.rand_like(y_data) - (label_noise/2)
-    
-    loss_data = F.binary_cross_entropy_with_logits(y_data, data_label + noise1)
-    loss_generated = F.binary_cross_entropy_with_logits(y_generated, 1 - data_label + noise2)
-    
-    # ========================
+    device = y_data.device
+    epsilon = label_noise / 2
+    distribution = torch.distributions.uniform.Uniform(-epsilon, epsilon)
+    noisy_data_labels = data_label + distribution.sample(y_data.shape).to(device=y_data.device)
+    noisy_generated_labels = 1 - data_label + distribution.sample(y_generated.shape).to(device=y_data.device)
+    loss_data = F.binary_cross_entropy_with_logits(y_data, noisy_data_labels)
+    loss_generated = F.binary_cross_entropy_with_logits(y_generated, noisy_generated_labels)
     return loss_data + loss_generated
 
 
@@ -192,10 +132,8 @@ def generator_loss_fn(y_generated, data_label=0):
     # TODO: Implement the Generator loss.
     # Think about what you need to compare the input to, in order to
     # formulate the loss in terms of Binary Cross Entropy.
-    # ====== YOUR CODE: ======
-    label = torch.ones_like(y_generated) * data_label
-    loss = F.binary_cross_entropy_with_logits(y_generated, label)
-    # ========================
+    generated_labels = torch.ones_like(y_generated) * data_label
+    loss = F.binary_cross_entropy_with_logits(y_generated, generated_labels)
     return loss
 
 
@@ -213,61 +151,29 @@ def train_batch(dsc_model: Discriminator, gen_model: Generator,
     # 1. Show the discriminator real and generated data
     # 2. Calculate discriminator loss
     # 3. Update discriminator parameters
-    # ====== YOUR CODE: ======
-    N = x_data.shape[0]
-    
-    # Set params for training the Discriminator
-    dsc_model.train(mode=True)
-    gen_model.train(mode=False)    
+    dsc_model.train()
+    gen_model.train(mode=False)
     dsc_optimizer.zero_grad()
-    
-    # Generate new data using Generator - ! We Do Not Train The Generator ! 
-    x_fake = gen_model.sample(N, with_grad=False)
-    
-    # Calculate scores for both real and fake images
-    real_prob = dsc_model(x_data)
-    fake_prob = dsc_model(x_fake)
-    
-    # Calculate loss
-    dsc_loss = dsc_loss_fn(real_prob, fake_prob)
-    
-    # Train
+    y_data = dsc_model(x_data)
+    x_generated = gen_model.sample(x_data.shape[0])
+    y_generated = dsc_model(x_generated)
+    dsc_loss = dsc_loss_fn(y_data, y_generated)
     dsc_loss.backward()
     dsc_optimizer.step()
-    
-    # ========================
 
     # TODO: Generator update
     # 1. Show the discriminator generated data
     # 2. Calculate generator loss
     # 3. Update generator parameters
-    # ====== YOUR CODE: ======
-    N = x_data.shape[0]
-    
-    # Set params for training the Discriminator
     dsc_model.train(mode=False)
-    gen_model.train(mode=True)    
+    gen_model.train()
     gen_optimizer.zero_grad()
-    
-    # Generate new data using Generator
-    x_fake = gen_model.sample(N, with_grad=True)
-    
-    # Calculate scores for both real and fake images
-    real_prob = dsc_model(x_data)
-    fake_prob = dsc_model(x_fake)
-    
-    # Calculate loss
-    gen_loss = gen_loss_fn(fake_prob)
-    
-    # Train
+    x_generated = gen_model.sample(x_data.shape[0], with_grad=True)
+    y_generated = dsc_model(x_generated)
+    gen_loss = gen_loss_fn(y_generated)
     gen_loss.backward()
     gen_optimizer.step()
-    
-
-    # Finally set both model's training off
-    dsc_model.train(mode=False)
-    gen_model.train(mode=False)   
-    # ========================
+    gen_model.train(mode=False)
 
     return dsc_loss.item(), gen_loss.item()
 

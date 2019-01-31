@@ -1,12 +1,11 @@
+import math
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-import numpy as np
-
 
 class EncoderCNN(nn.Module):
-    def __init__(self, in_channels, out_channels):
+    def __init__(self, in_channels, out_channels, start_log=6, negative_slope=0, dropout_p=0):
         super().__init__()
 
         modules = []
@@ -18,22 +17,18 @@ class EncoderCNN(nn.Module):
         # Architecture is up to you, but you should use at least 3 Conv layers.
         # You can use any Conv layer parameters, use pooling or only strides,
         # use any activation functions, use BN or Dropout, etc.
-        # ====== YOUR CODE: ======
+        out_channels_log = math.ceil(math.log2(out_channels)) - 1
+        hidden_channels = [2 ** i for i in range(start_log, out_channels_log + 1)]
+        channels = [in_channels]  + hidden_channels + [out_channels]
         
-        modules = []
-        Cin = in_channels
-        convs = [64,128] + [out_channels]
-        for Cout in convs:
-#             modules += [nn.Conv2d(Cin,Cout,5,padding=2),nn.MaxPool2d(2),nn.BatchNorm2d(Cout),nn.ReLU()]
-            modules += [nn.Conv2d(Cin,Cout,5,stride=2,padding=2),nn.BatchNorm2d(Cout),nn.LeakyReLU()]
-            Cin = Cout
-
+        for channels1, channels2 in zip(channels, channels[1:]):
+            modules += [
+                nn.Conv2d(channels1, channels2, 5, stride=2, padding=2),
+                nn.BatchNorm2d(channels2),
+                nn.LeakyReLU(negative_slope=negative_slope),
+                nn.Dropout2d(p=dropout_p),
+            ]
         
-#         modules += [nn.MaxPool2d(4),nn.Conv2d(Cin,out_channels,5,padding=2)]
-#         modules += [nn.Conv2d(Cin,out_channels,5,padding=2)]
-            
-            
-        # ========================
         self.cnn = nn.Sequential(*modules)
 
     def forward(self, x):
@@ -41,7 +36,7 @@ class EncoderCNN(nn.Module):
 
 
 class DecoderCNN(nn.Module):
-    def __init__(self, in_channels, out_channels):
+    def __init__(self, in_channels, out_channels, start_log=6, negative_slope=0, dropout_p=0):
         super().__init__()
 
         modules = []
@@ -53,77 +48,23 @@ class DecoderCNN(nn.Module):
         # and they should produce the same volumes, just in reverse order.
         # Output should be a batch of images, with same dimensions as the
         # inputs to the Encoder were.
-        # ====== YOUR CODE: ======
-        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        
-        Cin = in_channels
-        convs = [32,128,256]
-        modules = []
-        
-        
-
-        for Cout in reversed(convs):
-            modules += [nn.LeakyReLU()]  
-            modules += [nn.BatchNorm2d(Cin).to(device)]
-            modules += [nn.ConvTranspose2d(Cin,Cout,5,stride=2,padding=2,output_padding=1)]
-
-
-            Cin = Cout
+        in_channels_log = math.ceil(math.log2(in_channels)) - 1
+        hidden_channels = [2 ** i for i in range(in_channels_log, start_log - 1, -1)]
+        channels = [in_channels] + hidden_channels + [out_channels]
             
-        modules += [nn.ConvTranspose2d(Cin,out_channels,5,padding=2)]
-    
-        
-        
-        # ========================
+        for i, (channels1, channels2) in enumerate(zip(channels, channels[1:])):
+            modules += [
+                nn.LeakyReLU(negative_slope=negative_slope),
+                nn.BatchNorm2d(channels1),
+                nn.ConvTranspose2d(channels1, channels2, 5, stride=2, padding=2, output_padding=1),
+                nn.Dropout2d(p=dropout_p),
+            ]
+            
         self.cnn = nn.Sequential(*modules)
 
     def forward(self, h):
         # Tanh to scale to [-1, 1] (same dynamic range as original images).
-#         print('h device - ', h.device)
-# #         print('cnn device - ' , self.cnn.device)
-    
-    
-#         h = self.conv1(h)
-#         print(h)
-#         h = self.bn1(h)
-#         print(type(h))
-#         print('h shape - ', h.shape)
-#         print(h[0].cpu())
-        
-#         h = h.cpu()
-        
-#         try:
-#             h = self.rl(h_cpu)
-#         except Exception as e:
-#             print('########################### First time error ####################################')
-#             print(str(e))
-#             print('##########################################################################')
-        
-#         h_gpu = h_cpu.cuda()
-        
-#         try:
-#             h = self.rl(h_gpu)
-#         except Exception as e:
-#             print('######################Second time error#################################')
-#             print(str(e))
-#             print('##########################################################################')
-        
-        
-#         h = self.rl(h)
-    
-    
-    
-#         for m in self.modules:
-#             print(m)
-#             try:
-#                 print('m device - ', m.device)
-#             except:
-#                 print('################ m has no device ##############')
-#             h = m(h)
-    
-    
-        x = self.cnn(h)
-        return torch.tanh(x)
+        return torch.tanh(self.cnn(h))
 
 
 class VAE(nn.Module):
@@ -144,39 +85,9 @@ class VAE(nn.Module):
         self.features_shape, n_features = self._check_features(in_size)
 
         # TODO: Add parameters needed for encode() and decode().
-        # ====== YOUR CODE: ======
-        self.spatial = 8
-        
-        
-        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        D = self.features_shape[0] * self.spatial * self.spatial
-        
-#         m_w = torch.zeros(D,z_dim)
-#         m_b = torch.zeros(1,z_dim)
-        
-#         s = 1 / D
-        
-#         self.Whu = torch.normal(m_w,s).to(device)
-#         self.Bhu = torch.normal(m_b,1).to(device)
-#         self.Whs = torch.normal(m_w,s).to(device)
-#         self.Bhs = torch.normal(m_b,1).to(device)
-        
-        
-        
-#         m_w = torch.zeros(z_dim,D)
-#         m_b = torch.zeros(1,D)
-        
-#         self.Dec_T = torch.normal(m_w,1).to(device)
-#         self.Dec_b = torch.normal(m_b,1).to(device)
-        
-        
-        #using python nn
-        self.Utransformation = nn.Linear(D,z_dim)
-        self.Stransformation = nn.Linear(D,z_dim)
-        self.Dectransformation = nn.Linear(z_dim,D)
-        
-        
-        # ========================
+        self.mu_layer = nn.Linear(n_features, self.z_dim)
+        self.log_sigma2_layer = nn.Linear(n_features, self.z_dim)
+        self.z_to_h_layer = nn.Linear(self.z_dim, n_features)
 
     def _check_features(self, in_size):
         device = next(self.parameters()).device
@@ -194,33 +105,15 @@ class VAE(nn.Module):
         # 1. Use the features extracted from the input to obtain mu and
         # log_sigma2 (mean and log variance) of the posterior p(z|x).
         # 2. Apply the reparametrization trick.
-        # ====== YOUR CODE: ======
-        h = self.features_encoder(x)
+        N = x.shape[0]
+        device = next(self.parameters()).device
         
-        h = h.view(h.shape[0],-1)
+        h = self.features_encoder(x).view(N, -1)
+        mu = self.mu_layer(h)
+        log_sigma2 = self.log_sigma2_layer(h)
         
-#         mu = torch.mm(h,self.Whu)
-#         mu = mu + self.Bhu
-        
-        
-#         log_sigma2 = torch.mm(h,self.Whs) + self.Bhs
-
-        
-        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        o = torch.zeros(1,self.z_dim)
-        u = torch.normal(o,1).to(device)
-        
-        
-        
-        mu = self.Utransformation(h)
-        log_sigma2 = self.Stransformation(h)
-        
-    
-    
-    
-        z = mu + torch.exp(log_sigma2/2)*u
-        
-        # ========================
+        u = torch.randn(N, self.z_dim, device=device)
+        z = mu + torch.exp(0.5 * log_sigma2) * u
 
         return z, mu, log_sigma2
 
@@ -228,18 +121,12 @@ class VAE(nn.Module):
         # TODO: Convert a latent vector back into a reconstructed input.
         # 1. Convert latent to features.
         # 2. Apply features decoder.
-        # ====== YOUR CODE: ======
-#         h = torch.mm(z,self.Dec_T) + self.Dec_b
-        h = self.Dectransformation(z)
-
-
-        h = h.view(h.shape[0],-1,self.spatial,self.spatial)
-        
+        h = self.z_to_h_layer(z).view(z.shape[0], *self.features_shape)
         x_rec = self.features_decoder(h)
-        # ========================
 
         # Scale to [-1, 1] (same dynamic range as original images).
-        return torch.tanh(x_rec)
+        #return torch.tanh(x_rec)
+        return x_rec
 
     def sample(self, n):
         samples = []
@@ -248,30 +135,16 @@ class VAE(nn.Module):
             # TODO: Sample from the model.
             # Generate n latent space samples and return their reconstructions.
             # Remember that for the model, this is like inference.
-            # ====== YOUR CODE: ======
-            device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+            z = torch.randn(n, self.z_dim, device=device)
+            x = self.decode(z)
+            samples = x.split(1, dim=0)
+            samples = [sample.squeeze(dim=0).cpu() for sample in samples]
             
-            o = torch.zeros(n,self.z_dim)
-            z = torch.normal(o,1).to(device)
-            
-            samples = self.decode(z)
-            # ========================
-        return samples.to('cpu')
+        return samples
 
     def forward(self, x):
         z, mu, log_sigma2 = self.encode(x)
         return self.decode(z), mu, log_sigma2
-    
-    
-    def changeDevice(device):
-        self.Whu = self.Whu.to(device)
-        self.Whu = self.Whu.to(device)
-        self.Whu = self.Whu.to(device)
-        self.Whu = self.Whu.to(device)
-        self.Whu = self.Whu.to(device)
-        self.Whu = self.Whu.to(device)
-        self.Whu = self.Whu.to(device)
-        
 
 
 def vae_loss(x, xr, z_mu, z_log_sigma2, x_sigma2):
@@ -291,51 +164,8 @@ def vae_loss(x, xr, z_mu, z_log_sigma2, x_sigma2):
     loss, data_loss, kldiv_loss = None, None, None
     # TODO: Implement the VAE pointwise loss calculation.
     # Remember that the covariance matrix of the posterior is diagonal.
-    # ====== YOUR CODE: ======
-    
-    N = x.shape[0]
-    r = (x - xr).view(N,-1)
-    D = r.shape[1]
-    
-    
-    diff = torch.mm(r,r.transpose(0,1))
-    data_loss_vec = torch.diag(diff) 
-    
-    data_loss = torch.mean(data_loss_vec) / D
-
-    
-    
-    
-    z_dim = z_mu.shape[1]
-    
-    # z_mu - (N , z_dim)
-    # z log sigma - (N , z_dim)
-    
-    kldiv_loss_vec = z_log_sigma2.exp().sum(dim=1) + z_mu.norm(dim=1).pow(2) - z_dim - z_log_sigma2.sum(dim=1)
-    kldiv_loss = torch.mean(kldiv_loss_vec) / z_dim
-    
-    
-    
-    
-    loss = kldiv_loss + data_loss/ x_sigma2
-    
-    if loss > 10000 or torch.isnan(loss):
-        raise AutoEncoderError('loss is Inf/Nan...')
-    
-    
-    # ========================
+    data_loss = torch.norm(x - xr).pow(2) / x.numel() / x_sigma2
+    kldiv_loss = torch.mean(z_log_sigma2.exp() + z_mu.pow(2) - 1 - z_log_sigma2)
+    loss = data_loss + kldiv_loss
 
     return loss, data_loss, kldiv_loss
-
-
-
-
-class AutoEncoderError(Exception):
-    def __init__(self, message):
-        message = '################ ' + message + ' ################'
-        # Call the base class constructor with the parameters it needs
-        super().__init__(message)
-        self.message = message
-
-
-

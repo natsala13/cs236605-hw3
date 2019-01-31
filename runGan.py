@@ -5,8 +5,8 @@ from hw3.experiments import run_experiment_GAN
 # from hw3.autoencoder import AutoEncoderError 
 import numpy as np
      
-Init_Name = 'MEGA_RUN'
-OUTDIR = './results/Res3/'
+Init_Name = 'Gan_First_Run'
+OUTDIR = './results/Res4/'
 
 AllResults = {}
 
@@ -18,20 +18,32 @@ lr = 0.0005
 
 
 
-
-try:
-    name = 'Gan_First_Run'
-    res = run_experiment_GAN(name, out_dir=OUTDIR, seed=42,
-                            # Training params
-                            bs_train=8, bs_test=None, batches=100, epochs=100,
-                            early_stopping=10, checkpoints=None,print_every=5,
-                            # Model params
-                            h_dim=256, z_dim=128)
-    AllResults[name] = res
-except OSError as e:
-    AllResults[name] = 'Failed... ' + str(e)
+def oneExp(gen_lr,des_lr,generator_optim,dsc_optim):
+    try:
+        name = Init_Name + 'DSC_' + dsc_optim + 'GEN_' + generator_optim + 'genlr_' + genlr + 'deslr' + des_lr
+        res = run_experiment_GAN(name, out_dir=OUTDIR, seed=42,
+                                # Training params
+                                bs_train=8, bs_test=None, batches=100, epochs=100,
+                                early_stopping=10, checkpoints=None,print_every=100,
+                                # Model params
+                                h_dim=256, z_dim=128, gen_lr, des_lr, generator_optim,
+                                 dsc_optim, data_label, label_noise)
+        AllResults[name] = res
+    except OSError as e:
+        AllResults[name] = 'Failed... ' + str(e)
     
     
     
             
+
+
+for gen_lr in [0.0008,0.0005,0.0001]:
+    for des_lr in [0.0008,0.0005,0.0001]:
+        for generator_optim in ['SGD', 'ADAM']:
+            for dsc_optim in ['SGD', 'ADAM']:
+                oneExp(lr,s,z)
+            
+            
+            
 np.save(OUTDIR + 'RunFinal', AllResults)
+

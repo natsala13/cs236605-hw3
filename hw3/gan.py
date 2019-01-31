@@ -145,6 +145,9 @@ class Generator(nn.Module):
         N = z.shape[0]
         z = z.view(N,-1,self.out_spatial,self.out_spatial)
         
+        print()
+        print('z device - ', z.device)
+        
         x = self.generator(z)
         # ========================
         return x

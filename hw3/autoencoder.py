@@ -84,7 +84,9 @@ class DecoderCNN(nn.Module):
         # Tanh to scale to [-1, 1] (same dynamic range as original images).
         print('h device - ', h.device)
 #         print('cnn device - ' , self.cnn.device)
-  
+        h = h.cpu()
+    
+    
         h = self.conv1(h)
         print(h)
         h = self.bn1(h)
@@ -94,21 +96,21 @@ class DecoderCNN(nn.Module):
         
         h_cpu = h.cpu()
         
-        try:
-            h = self.rl(h_cpu)
-        except Exception as e:
-            print('########################### First time error ####################################')
-            print(str(e))
-            print('##########################################################################')
+#         try:
+#             h = self.rl(h_cpu)
+#         except Exception as e:
+#             print('########################### First time error ####################################')
+#             print(str(e))
+#             print('##########################################################################')
         
-        h_gpu = h_cpu.cuda()
+#         h_gpu = h_cpu.cuda()
         
-        try:
-            h = self.rl(h_gpu)
-        except Exception as e:
-            print('######################Second time error#################################')
-            print(str(e))
-            print('##########################################################################')
+#         try:
+#             h = self.rl(h_gpu)
+#         except Exception as e:
+#             print('######################Second time error#################################')
+#             print(str(e))
+#             print('##########################################################################')
         
         
         h = self.rl(h)

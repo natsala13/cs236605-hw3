@@ -19,8 +19,9 @@ lr = 0.0005
 
 
 
-try:           
-    res = run_experiment_GAN('Gan_First_Run', out_dir='results/', seed=12,
+try:
+    name = 'Gan_First_Run'
+    res = run_experiment_GAN(name, out_dir='results/', seed=12,
                             # Training params
                             bs_train=8, bs_test=None, batches=100, epochs=100,
                             early_stopping=10, checkpoints=None,

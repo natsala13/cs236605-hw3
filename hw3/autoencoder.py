@@ -22,14 +22,14 @@ class EncoderCNN(nn.Module):
         
         modules = []
         Cin = in_channels
-        convs = [32,64,128,256]
+        convs = [64,128] + [out_channels]
         for Cout in convs:
-            modules += [nn.Conv2d(Cin,Cout,5,padding=2),nn.BatchNorm2d(Cout),nn.MaxPool2d(2),nn.ReLU()]
+            modules += [nn.Conv2d(Cin,Cout,5,padding=2),nn.MaxPool2d(2),nn.BatchNorm2d(Cout),nn.ReLU()]
             Cin = Cout
 
         
 #         modules += [nn.MaxPool2d(4),nn.Conv2d(Cin,out_channels,5,padding=2)]
-        modules += [nn.Conv2d(Cin,out_channels,5,padding=2)]
+#         modules += [nn.Conv2d(Cin,out_channels,5,padding=2)]
             
             
         # ========================
@@ -54,7 +54,7 @@ class DecoderCNN(nn.Module):
         # inputs to the Encoder were.
         # ====== YOUR CODE: ======
         Cin = in_channels
-        convs = [32,64,128,256]
+        convs = [32,128,256]
         modules = []
         
         
@@ -97,7 +97,7 @@ class VAE(nn.Module):
 
         # TODO: Add parameters needed for encode() and decode().
         # ====== YOUR CODE: ======
-        self.spatial = 4
+        self.spatial = 8
         
         
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')

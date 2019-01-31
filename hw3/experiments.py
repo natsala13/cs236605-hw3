@@ -36,6 +36,8 @@ from hw3.answers import part2_vae_hyperparams
 
 import IPython.display
 
+import numpy as np
+
 # from . import models
 # from . import training
 

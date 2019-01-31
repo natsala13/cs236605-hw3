@@ -77,7 +77,8 @@ class DecoderCNN(nn.Module):
 
     def forward(self, h):
         # Tanh to scale to [-1, 1] (same dynamic range as original images).
-        return torch.tanh(self.cnn(h))
+        x = self.tanh.cnn(h)
+	return torch.tanh(x)
 
 
 class VAE(nn.Module):

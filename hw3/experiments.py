@@ -22,7 +22,8 @@ from torchvision.datasets import ImageFolder
 import hw3.autoencoder as autoencoder
 from hw3.autoencoder import vae_loss
 
-from hw3.gan import *
+import hw3.gan as gan
+# from hw3.gan import *
 
 
 import torch.optim as optim
@@ -155,16 +156,17 @@ def run_experiment_VAE(run_name, out_dir='./results', seed=42,
 def run_experiment_GAN(run_name, out_dir='./results', seed=42,
                    # Training params
                    bs_train=128, bs_test=None, batches=100, epochs=100,
-                   early_stopping=3, checkpoints=None, lr=1e-3,RTplot=False,
-                   print_every=100,
+                   early_stopping=3, checkpoints=None, gen_lr=1e-3, des_lr=1e-3, RTplot=False,
+                   print_every=100, generator_optim='SGD', dsc_optim='SGD',
+                    data_label = 1, label_noise=0.3,
                    # Model params
-                   h_dim=256, z_dim=5, x_sigma2=0.9,betas=(0.9,0.999),
+                   h_dim=256, z_dim=5,
                    **kw):
-        """
-        Execute a single run of experiment 1 with a single configuration.
-        :param run_name: The name of the run and output file to create.
-        :param out_dir: Where to write the output to.
-        """
+#         """
+#         Execute a single run of experiment 1 with a single configuration.
+#         :param run_name: The name of the run and output file to create.
+#         :param out_dir: Where to write the output to.
+#         """
 
     torch.manual_seed(seed)
     cfg = locals()
@@ -214,15 +216,19 @@ def run_experiment_GAN(run_name, out_dir='./results', seed=42,
         optimizer_type = opt_params['type']
         opt_params.pop('type')
         return optim.__dict__[optimizer_type](model_params, **opt_params)
-    dsc_optimizer = create_optimizer(dsc.parameters(), hp['discriminator_optimizer'])
-    gen_optimizer = create_optimizer(gen.parameters(), hp['generator_optimizer'])
+    
+    generator_optimizer=dict(type=generator_optim,lr=gen_lr)
+    discriminator_optimizer=dict(type=dsc_optim,lr=des_lr)
+    
+    dsc_optimizer = create_optimizer(dsc.parameters(), discriminator_optimizer)
+    gen_optimizer = create_optimizer(gen.parameters(),generator_optimizer)
 
     # Loss
     def dsc_loss_fn(y_data, y_generated):
-        return gan.discriminator_loss_fn(y_data, y_generated, hp['data_label'], hp['label_noise'])
+        return gan.discriminator_loss_fn(y_data, y_generated, data_label,label_noise)
 
     def gen_loss_fn(y_generated):
-        return gan.generator_loss_fn(y_generated, hp['data_label'])
+        return gan.generator_loss_fn(y_generated,data_label)
 
     # Training
     checkpoint_file = 'checkpoints/gan'
@@ -243,16 +249,16 @@ def run_experiment_GAN(run_name, out_dir='./results', seed=42,
     fit_gen_loss = []
     fit_des_loss = []
     
-    for epoch_idx in range(num_epochs):
+    for epoch_idx in range(epochs):
         # We'll accumulate batch losses and show an average once per epoch.
         dsc_losses = []
         gen_losses = []
-        print(f'--- EPOCH {epoch_idx+1}/{num_epochs} ---')
+        print(f'--- EPOCH {epoch_idx+1}/{epochs} ---')
 
         with tqdm.tqdm(total=len(dl_train.batch_sampler), file=sys.stdout) as pbar:
             for batch_idx, (x_data, _) in enumerate(dl_train):
                 x_data = x_data.to(device)
-                dsc_loss, gen_loss = train_batch(
+                dsc_loss, gen_loss = gan.train_batch(
                     dsc, gen,
                     dsc_loss_fn, gen_loss_fn,
                     dsc_optimizer, gen_optimizer,
@@ -266,7 +272,7 @@ def run_experiment_GAN(run_name, out_dir='./results', seed=42,
         print(f'Generator loss:     {gen_avg_loss}')
         
         # save final epochs' loss
-        fit_des_loss.append(gen_avg_loss)
+        fit_gen_loss.append(gen_avg_loss)
         fit_des_loss.append(dsc_avg_loss)
 
         samples = gen.sample(5, with_grad=False)
@@ -274,14 +280,17 @@ def run_experiment_GAN(run_name, out_dir='./results', seed=42,
         IPython.display.display(fig)
         plt.close(fig)
     
-    fit_res = GANResult(epochs,fit_des_loss,fit_des_loss)
+    fit_res = GANResult(epochs,fit_gen_loss,fit_des_loss)
+    
+    last_dis_loss = fit_des_loss[-1]
+    last_gen_loss = fit_gen_loss[-1]
     # ================================================
     
     
     save_experiment(run_name, out_dir, cfg, fit_res)
     
     
-    return {'train': last_train_loss, 'test': last_test_loss}
+    return {'Gen': last_gen_loss, 'Dis': last_dis_loss}
     
 
     

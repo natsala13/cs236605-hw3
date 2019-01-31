@@ -90,6 +90,7 @@ class DecoderCNN(nn.Module):
         h = self.bn1(h)
         print(type(h))
         print('h shape - ', h.shape)
+        print(h[0])
         h = self.rl(h)
     
     

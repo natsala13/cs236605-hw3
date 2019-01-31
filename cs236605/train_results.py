@@ -31,3 +31,8 @@ class FitResult(NamedTuple):
     test_loss: List[float]
     test_acc: List[float]
 
+        
+class GANResult(NamedTuple):
+    num_epochs: int
+    generator_loss: List[float]
+    descriminator_loss: List[float]

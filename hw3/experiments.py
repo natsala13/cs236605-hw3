@@ -5,6 +5,7 @@ import random
 import sys
 import json
 import pathlib
+import tqdm
 
 import torch
 import torchvision
@@ -13,13 +14,15 @@ import cs236605.download
 import cs236605.plot as plot
 import matplotlib.pyplot as plt
 
-from cs236605.train_results import FitResult
+from cs236605.train_results import FitResult, GANResult
 
 import torchvision.transforms as T
 from torchvision.datasets import ImageFolder
 
 import hw3.autoencoder as autoencoder
 from hw3.autoencoder import vae_loss
+
+from hw3.gan import *
 
 
 import torch.optim as optim
@@ -38,7 +41,7 @@ import IPython.display
 DATA_DIR = os.path.join(os.getenv('HOME'), '.pytorch-datasets')
 DATA_URL = 'http://vis-www.cs.umass.edu/lfw/lfw-bush.zip'
 
-def run_experiment(run_name, out_dir='./results', seed=42,
+def run_experiment_VAE(run_name, out_dir='./results', seed=42,
                    # Training params
                    bs_train=128, bs_test=None, batches=100, epochs=100,
                    early_stopping=3, checkpoints=None, lr=1e-3,RTplot=False,
@@ -147,8 +150,145 @@ def run_experiment(run_name, out_dir='./results', seed=42,
     return {'train': last_train_loss, 'test': last_test_loss}
     
 
+
+    
+def run_experiment_GAN(run_name, out_dir='./results', seed=42,
+                   # Training params
+                   bs_train=128, bs_test=None, batches=100, epochs=100,
+                   early_stopping=3, checkpoints=None, lr=1e-3,RTplot=False,
+                   print_every=100,
+                   # Model params
+                   h_dim=256, z_dim=5, x_sigma2=0.9,betas=(0.9,0.999),
+                   **kw):
+        """
+        Execute a single run of experiment 1 with a single configuration.
+        :param run_name: The name of the run and output file to create.
+        :param out_dir: Where to write the output to.
+        """
+
+    torch.manual_seed(seed)
+    cfg = locals()
+
+    ############### Download DataSet #################
+    DATA_DIR = pathlib.Path.home().joinpath('.pytorch-datasets')
+    _, dataset_dir = cs236605.download.download_data(out_path=DATA_DIR, url=DATA_URL, extract=True, force=False)
+    im_size = 64
+    tf = T.Compose([
+        # Resize to constant spatial dimensions
+        T.Resize((im_size, im_size)),
+        # PIL.Image -> torch.Tensor
+        T.ToTensor(),
+        # Dynamic range [0,1] -> [-1, 1]
+        T.Normalize(mean=(.5,.5,.5), std=(.5,.5,.5)),
+    ])
+    ds_gwb = ImageFolder(os.path.dirname(dataset_dir), tf)
+    ##################################################
+    
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    
+
+    
+    # TODO: Train
+    # - Create model, loss, optimizer and trainer based on the parameters.
+    #   Use the model you've implemented previously, cross entropy loss and
+    #   any optimizer that you wish.
+    # - Run training and save the FitResults in the fit_res variable.
+    # - The fit results and all the experiment parameters will then be saved
+    #  for you automatically.
+    fit_res = None
+    # =========== Prepare For Training: ============
+
+    # Hyperparams
+
+    # Data
+    dl_train = DataLoader(ds_gwb, bs_train, shuffle=True)
+    im_size = ds_gwb[0][0].shape
+
+    # Model
+    dsc = gan.Discriminator(im_size).to(device)
+    gen = gan.Generator(z_dim, featuremap_size=4).to(device)
+
+    # Optimizer
+    def create_optimizer(model_params, opt_params):
+        opt_params = opt_params.copy()
+        optimizer_type = opt_params['type']
+        opt_params.pop('type')
+        return optim.__dict__[optimizer_type](model_params, **opt_params)
+    dsc_optimizer = create_optimizer(dsc.parameters(), hp['discriminator_optimizer'])
+    gen_optimizer = create_optimizer(gen.parameters(), hp['generator_optimizer'])
+
+    # Loss
+    def dsc_loss_fn(y_data, y_generated):
+        return gan.discriminator_loss_fn(y_data, y_generated, hp['data_label'], hp['label_noise'])
+
+    def gen_loss_fn(y_generated):
+        return gan.generator_loss_fn(y_generated, hp['data_label'])
+
+    # Training
+    checkpoint_file = 'checkpoints/gan'
+    checkpoint_file_final = f'{checkpoint_file}_final'
+    if os.path.isfile(f'{checkpoint_file}.pt'):
+        os.remove(f'{checkpoint_file}.pt')
+    
+    # ================================================
+    
+    # ============== Actual Training =================    
+
+    if os.path.isfile(f'{checkpoint_file_final}.pt'):
+        print(f'*** Loading final checkpoint file {checkpoint_file_final} instead of training')
+        num_epochs = 0
+        gen = torch.load(f'{checkpoint_file_final}.pt', map_location=device)
+        checkpoint_file = checkpoint_file_final
+    
+    fit_gen_loss = []
+    fit_des_loss = []
+    
+    for epoch_idx in range(num_epochs):
+        # We'll accumulate batch losses and show an average once per epoch.
+        dsc_losses = []
+        gen_losses = []
+        print(f'--- EPOCH {epoch_idx+1}/{num_epochs} ---')
+
+        with tqdm.tqdm(total=len(dl_train.batch_sampler), file=sys.stdout) as pbar:
+            for batch_idx, (x_data, _) in enumerate(dl_train):
+                x_data = x_data.to(device)
+                dsc_loss, gen_loss = train_batch(
+                    dsc, gen,
+                    dsc_loss_fn, gen_loss_fn,
+                    dsc_optimizer, gen_optimizer,
+                    x_data)
+                dsc_losses.append(dsc_loss)
+                gen_losses.append(gen_loss)
+                pbar.update()
+
+        dsc_avg_loss, gen_avg_loss = np.mean(dsc_losses), np.mean(gen_losses)
+        print(f'Discriminator loss: {dsc_avg_loss}')
+        print(f'Generator loss:     {gen_avg_loss}')
+        
+        # save final epochs' loss
+        fit_des_loss.append(gen_avg_loss)
+        fit_des_loss.append(dsc_avg_loss)
+
+        samples = gen.sample(5, with_grad=False)
+        fig, _ = plot.tensors_as_images(samples.cpu(), figsize=(6,2))
+        IPython.display.display(fig)
+        plt.close(fig)
+    
+    fit_res = GANResult(epochs,fit_des_loss,fit_des_loss)
+    # ================================================
     
     
+    save_experiment(run_name, out_dir, cfg, fit_res)
+    
+    
+    return {'train': last_train_loss, 'test': last_test_loss}
+    
+
+    
+
+    
+
+
     
 RESULT_DIR = 'results/'
 

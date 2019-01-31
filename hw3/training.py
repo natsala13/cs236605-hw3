@@ -298,13 +298,7 @@ class VAETrainer(Trainer):
         
         #calculate loss
         loss, data_loss , _ = self.loss_fn(x, xr, z_mu, z_log_sigma2)
-#         if loss > 10000:
-#             print()
-#             print('loss is nan...')
-#             print('x - ', x)
-#             print('xr - ', xr)
-#             print('z mu - ', z_mu)
-#             print('z log sigma - ', z_log_sigma2)
+
         
         #backward
         loss.backward()

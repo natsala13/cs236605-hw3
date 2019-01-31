@@ -22,26 +22,20 @@ class Discriminator(nn.Module):
         # You can then use either an affine layer or another conv layer to
         # flatten the features.
         # ====== YOUR CODE: ======
-#         modules = []
         in_channels = in_size[0]
         out_channels = 256
-        out_spatial = 64 # The encoder returns (out_channels,8,8)
-#         convs = [64,128]
         
-#         for Cout in convs:
-#             modules += [nn.Conv2d(Cin,Cout,5,padding=2),nn.BatchNorm2d(Cout),nn.MaxPool2d(4),nn.ReLU()]
-#             Cin = Cout
+        out_spatial = 8 # The encoder returns (out_channels,8,8)
 
-#         self.feature_extractor = nn.Sequential(*modules)
         
-        self.feature_extractor = EncoderCNN(in_channels,256)
+        self.feature_extractor = EncoderCNN(in_channels,out_channels)
     
-    
-#         modules = [nn.Linear(128,64),nn.ReLU(),nn.Linear(64,32),nn.ReLU(),nn.Linear(32,1)]
-        modules = []
-        Cin = out_channels * out_spatial
+        # Now lets create the classifier part
+        # After convolution we get (ou_channels,8,8)
+        Cin = out_channels * out_spatial * out_spatial
         hidden_dims = [2048,256,1]
         
+        modules = []        
         for Cout in hidden_dims:
             modules += [nn.Linear(Cin,Cout),nn.ReLU()]
             Cin = Cout
@@ -86,37 +80,24 @@ class Generator(nn.Module):
         # You can assume a fixed image size.
         # ====== YOUR CODE: ======
         Cin = z_dim
-        modules = []
         hidden_dims = [256,2048,16384]
+        self.out_spatial = 8 # The encoder returns (out_channels,8,8)
         
+        
+        modules = []        
         for Cout in hidden_dims:
             modules += [nn.Linear(Cin,Cout),nn.ReLU()]
             Cin = Cout
         
         self.transform = nn.Sequential(*modules)
         
-        print('Cin - ', Cin / 64)
-        Cin = Cin // 64
+#         print('Cin - ', Cin / (self.out_spatial * self.out_spatial))
+        Cin = Cin // (self.out_spatial * self.out_spatial)
         
-        self.generator = DecoderCNN(Cin,3)
         
-#         convs = [64,3]
-#         modules = []
-
-#         for Cout in convs:
-# #             modules += [nn.ConvTranspose2d(Cin,Cout,5,padding=2)]
-#             modules += [nn.Conv2d(Cin,Cout,5,padding=2)]
-#             modules += [nn.Upsample(scale_factor=4, mode='bilinear', align_corners = True)]
-#             modules += [nn.BatchNorm2d(Cout)]
-#             modules += [nn.ReLU()]  
-#             Cin = Cout
-            
-            
-#         modules += [nn.ConvTranspose2d(Cin,3,5,padding=2)]
-
         
-#         self.generator = nn.Sequential(*modules)
-        
+        # We will use the Model from Part 2
+        self.generator = DecoderCNN(Cin,out_channels)
         # ========================
 
     def sample(self, n, with_grad=False):
@@ -160,7 +141,7 @@ class Generator(nn.Module):
         z = self.transform(z)
         
         N = z.shape[0]
-        z = z.view(N,-1,8,8)
+        z = z.view(N,-1,self.out_spatial,self.out_spatial)
         
         x = self.generator(z)
         # ========================

@@ -1,0 +1,9 @@
+cpu-bind=MASK - rishon3, task  0  0 [15510]: mask 0x100000001 set
+cpu-bind=MASK - rishon3, task  0  0 [15510]: mask 0x100000001 set
+*** SLURM BATCH JOB 'test_job' STARTING ***
+*** Activating environment cs236605-hw ***
+Traceback (most recent call last):
+  File "runGan.py", line 5, in <module>
+    from hw3.autoencoder import AutoEncoderError 
+ImportError: cannot import name 'AutoEncoderError' from 'hw3.autoencoder' (/home/natsala/cs236605-hw3/hw3/autoencoder.py)
+*** SLURM BATCH JOB 'test_job' DONE ***

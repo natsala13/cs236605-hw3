@@ -241,15 +241,14 @@ def run_experiment_GAN(run_name, out_dir='./results', seed=42,
         
     def post_epoch_fn(epoch):
         # Plot some samples if this is a verbose epoch
-        if verbose:
-            samples = gen.sample(n=5)
-            fig, _ = plot.tensors_as_images(samples.cpu(), figsize=(6,2))
-            if RTplot:
-                IPython.display.display(fig)
-            else:
-                name = run_name + '_Ep_' + str(epoch)
-                fig.savefig(out_dir + name + '.png')
-            plt.close(fig)
+        samples = gen.sample(n=5)
+        fig, _ = plot.tensors_as_images(samples.cpu(), figsize=(6,2))
+        if RTplot:
+            IPython.display.display(fig)
+        else:
+            name = run_name + '_Ep_' + str(epoch)
+            fig.savefig(out_dir + name + '.png')
+        plt.close(fig)
     
     # ================================================
     

@@ -31,7 +31,7 @@ def oneExp(gen_lr,des_lr,generator_optim,dsc_optim):
                                 # Model params
                                 h_dim=256, z_dim=128, gen_lr=gen_lr, des_lr=des_lr, 
                                  generator_optim=generator_optim,
-                                 dsc_optim=dsc_optim, data_label, label_noise)
+                                 dsc_optim=dsc_optim, data_label=data_label, label_noise=label_noise)
         AllResults[name] = res
     except OSError as e:
         AllResults[name] = 'Failed... ' + str(e)

@@ -62,7 +62,7 @@ class DecoderCNN(nn.Module):
 
         for Cout in reversed(convs):
             modules += [nn.ConvTranspose2d(Cin,Cout,5,stride=2,padding=2,output_padding=1)]
-#             modules += [nn.BatchNorm2d(Cout)]
+            modules += [nn.BatchNorm2d(Cout)]
             modules += [nn.ReLU()]  
             Cin = Cout
             

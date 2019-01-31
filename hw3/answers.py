@@ -140,7 +140,17 @@ def part3_gan_hyperparams():
     )
     # TODO: Tweak the hyperparameters to train your GAN.
     # ====== YOUR CODE: ======
-    raise NotImplementedError()
+    hypers['batch_size'] = 16
+    hypers['z_dim'] = 128
+    hypers['data_label'] = 0
+    hypers['label_noise'] = 0.3
+    
+    hypers['discriminator_optimizer']['type'] = 'SGD'
+    hypers['discriminator_optimizer']['lr'] = 0.0001
+    
+    hypers['generator_optimizer']['type'] = 'SGD'
+    hypers['generator_optimizer']['lr'] = 0.0001
+    
     # ========================
     return hypers
 

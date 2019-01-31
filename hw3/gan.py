@@ -22,21 +22,25 @@ class Discriminator(nn.Module):
         # You can then use either an affine layer or another conv layer to
         # flatten the features.
         # ====== YOUR CODE: ======
-        modules = []
-        Cin = in_size[0]
-        convs = [64,128]
+#         modules = []
+        in_channels = in_size[0]
+        out_channels = 256
+        out_spatial = 64 # The encoder returns (out_channels,8,8)
+#         convs = [64,128]
         
-        for Cout in convs:
-            modules += [nn.Conv2d(Cin,Cout,5,padding=2),nn.BatchNorm2d(Cout),nn.MaxPool2d(4),nn.ReLU()]
-            Cin = Cout
+#         for Cout in convs:
+#             modules += [nn.Conv2d(Cin,Cout,5,padding=2),nn.BatchNorm2d(Cout),nn.MaxPool2d(4),nn.ReLU()]
+#             Cin = Cout
 
-        self.feature_extractor = nn.Sequential(*modules)
+#         self.feature_extractor = nn.Sequential(*modules)
         
+        self.feature_extractor = EncoderCNN(in_channels,256)
+    
+    
 #         modules = [nn.Linear(128,64),nn.ReLU(),nn.Linear(64,32),nn.ReLU(),nn.Linear(32,1)]
         modules = []
-        Cin = Cin * 16
-        hidden_dims = [1024,256,128,1]
-        
+        Cin = out_channels * out_spatial
+        hidden_dims = [2048,256,1]
         
         for Cout in hidden_dims:
             modules += [nn.Linear(Cin,Cout),nn.ReLU()]
@@ -83,7 +87,7 @@ class Generator(nn.Module):
         # ====== YOUR CODE: ======
         Cin = z_dim
         modules = []
-        hidden_dims = [256,1024,2048]
+        hidden_dims = [256,2048,16384]
         
         for Cout in hidden_dims:
             modules += [nn.Linear(Cin,Cout),nn.ReLU()]
@@ -91,24 +95,27 @@ class Generator(nn.Module):
         
         self.transform = nn.Sequential(*modules)
         
-        print(Cin / 16)
-        Cin = Cin // 16
-        convs = [64,3]
-        modules = []
+        print('Cin - ', Cin / 64)
+        Cin = Cin // 64
+        
+        self.generator = DecoderCNN(Cin,3)
+        
+#         convs = [64,3]
+#         modules = []
 
-        for Cout in convs:
-#             modules += [nn.ConvTranspose2d(Cin,Cout,5,padding=2)]
-            modules += [nn.Conv2d(Cin,Cout,5,padding=2)]
-            modules += [nn.Upsample(scale_factor=4, mode='bilinear', align_corners = True)]
-            modules += [nn.BatchNorm2d(Cout)]
-            modules += [nn.ReLU()]  
-            Cin = Cout
+#         for Cout in convs:
+# #             modules += [nn.ConvTranspose2d(Cin,Cout,5,padding=2)]
+#             modules += [nn.Conv2d(Cin,Cout,5,padding=2)]
+#             modules += [nn.Upsample(scale_factor=4, mode='bilinear', align_corners = True)]
+#             modules += [nn.BatchNorm2d(Cout)]
+#             modules += [nn.ReLU()]  
+#             Cin = Cout
             
             
 #         modules += [nn.ConvTranspose2d(Cin,3,5,padding=2)]
 
         
-        self.generator = nn.Sequential(*modules)
+#         self.generator = nn.Sequential(*modules)
         
         # ========================
 
@@ -127,10 +134,16 @@ class Generator(nn.Module):
         # ====== YOUR CODE: ======
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
             
-        o = torch.zeros(n,self.z_dim)
-        z = torch.normal(o,1).to(device)
-            
-        samples = self.forward(z)
+
+        
+        with torch.set_grad_enabled(with_grad):
+#             z = torch.randn(n, self.z_dim, device=device)
+#             samples = self(z)
+            o = torch.zeros(n,self.z_dim)
+            z = torch.normal(o,1).to(device)
+
+            samples = self.forward(z)
+        
         # ========================
         return samples
 
@@ -146,10 +159,8 @@ class Generator(nn.Module):
         # ====== YOUR CODE: ======
         z = self.transform(z)
         
-        print('z shape - ' , z.shape)
         N = z.shape[0]
-        z = z.view(N,-1,4,4)
-        print('z2 shape - ' , z.shape)
+        z = z.view(N,-1,8,8)
         
         x = self.generator(z)
         # ========================
@@ -175,13 +186,12 @@ def discriminator_loss_fn(y_data, y_generated, data_label=0, label_noise=0.0):
     # TODO: Implement the discriminator loss.
     # See torch's BCEWithLogitsLoss for a numerically stable implementation.
     # ====== YOUR CODE: ======
-    N = y_data.shape[0]
-    noise = label_noise * torch.rand(N, 1)
+    noise1 = label_noise * torch.rand_like(y_data) - (label_noise/2)
+    noise2 = label_noise * torch.rand_like(y_data) - (label_noise/2)
     
-    data_label += noise
+    loss_data = F.binary_cross_entropy_with_logits(y_data, data_label + noise1)
+    loss_generated = F.binary_cross_entropy_with_logits(y_generated, 1 - data_label + noise2)
     
-    
-    loss_data = 
     # ========================
     return loss_data + loss_generated
 
@@ -200,7 +210,8 @@ def generator_loss_fn(y_generated, data_label=0):
     # Think about what you need to compare the input to, in order to
     # formulate the loss in terms of Binary Cross Entropy.
     # ====== YOUR CODE: ======
-    raise NotImplementedError()
+    label = torch.ones_like(y_generated) * data_label
+    loss = F.binary_cross_entropy_with_logits(y_generated, label)
     # ========================
     return loss
 
@@ -220,7 +231,27 @@ def train_batch(dsc_model: Discriminator, gen_model: Generator,
     # 2. Calculate discriminator loss
     # 3. Update discriminator parameters
     # ====== YOUR CODE: ======
-    raise NotImplementedError()
+    N = x_data.shape[0]
+    
+    # Set params for training the Discriminator
+    dsc_model.train(mode=True)
+    gen_model.train(mode=False)    
+    dsc_optimizer.zero_grad()
+    
+    # Generate new data using Generator - ! We Do Not Train The Generator ! 
+    x_fake = gen_model.sample(N, with_grad=False)
+    
+    # Calculate scores for both real and fake images
+    real_prob = dsc_model(x_data)
+    fake_prob = dsc_model(x_fake)
+    
+    # Calculate loss
+    dsc_loss = dsc_loss_fn(real_prob, fake_prob)
+    
+    # Train
+    dsc_loss.backward()
+    dsc_optimizer.step()
+    
     # ========================
 
     # TODO: Generator update
@@ -228,7 +259,31 @@ def train_batch(dsc_model: Discriminator, gen_model: Generator,
     # 2. Calculate generator loss
     # 3. Update generator parameters
     # ====== YOUR CODE: ======
-    raise NotImplementedError()
+    N = x_data.shape[0]
+    
+    # Set params for training the Discriminator
+    dsc_model.train(mode=False)
+    gen_model.train(mode=True)    
+    gen_optimizer.zero_grad()
+    
+    # Generate new data using Generator
+    x_fake = gen_model.sample(N, with_grad=True)
+    
+    # Calculate scores for both real and fake images
+    real_prob = dsc_model(x_data)
+    fake_prob = dsc_model(x_fake)
+    
+    # Calculate loss
+    gen_loss = gen_loss_fn(fake_prob)
+    
+    # Train
+    gen_loss.backward()
+    gen_optimizer.step()
+    
+
+    # Finally set both model's training off
+    dsc_model.train(mode=False)
+    gen_model.train(mode=False)   
     # ========================
 
     return dsc_loss.item(), gen_loss.item()

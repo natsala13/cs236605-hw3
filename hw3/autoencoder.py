@@ -54,6 +54,8 @@ class DecoderCNN(nn.Module):
         # Output should be a batch of images, with same dimensions as the
         # inputs to the Encoder were.
         # ====== YOUR CODE: ======
+        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        
         Cin = in_channels
         convs = [32,128,256]
         modules = []
@@ -62,7 +64,7 @@ class DecoderCNN(nn.Module):
 
         for Cout in reversed(convs):
             modules += [nn.ConvTranspose2d(Cin,Cout,5,stride=2,padding=2,output_padding=1)]
-            modules += [nn.BatchNorm2d(Cout)]
+            modules += [nn.BatchNorm2d(Cout).to(device)]
             modules += [nn.ReLU()]  
             Cin = Cout
             

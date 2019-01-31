@@ -1,7 +1,7 @@
 # Lets try an experiment
 
 from hw3.answers import part2_vae_hyperparams
-from hw3.experiments import run_experiment
+from hw3.experiments import run_experiment_GAN
 from hw3.autoencoder import AutoEncoderError 
 import numpy as np
      

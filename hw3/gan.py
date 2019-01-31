@@ -34,10 +34,12 @@ class Discriminator(nn.Module):
         # After convolution we get (ou_channels,8,8)
         Cin = out_channels * out_spatial * out_spatial
         hidden_dims = [2048,256,1]
+        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        
         
         modules = []        
         for Cout in hidden_dims:
-            modules += [nn.Linear(Cin,Cout),nn.ReLU()]
+            modules += [nn.Linear(Cin,Cout,device=device),nn.ReLU()]
             Cin = Cout
         
         self.classifier = nn.Sequential(*modules)
@@ -82,11 +84,11 @@ class Generator(nn.Module):
         Cin = z_dim
         hidden_dims = [256,2048,16384]
         self.out_spatial = 8 # The encoder returns (out_channels,8,8)
-        
+        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         
         modules = []        
         for Cout in hidden_dims:
-            modules += [nn.Linear(Cin,Cout),nn.ReLU()]
+            modules += [nn.Linear(Cin,Cout,device=device),nn.ReLU()]
             Cin = Cout
         
         self.transform = nn.Sequential(*modules)

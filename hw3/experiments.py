@@ -235,6 +235,19 @@ def run_experiment_GAN(run_name, out_dir='./results', seed=42,
     checkpoint_file_final = f'{checkpoint_file}_final'
     if os.path.isfile(f'{checkpoint_file}.pt'):
         os.remove(f'{checkpoint_file}.pt')
+        
+        
+    def post_epoch_fn(epoch):
+        # Plot some samples if this is a verbose epoch
+        if verbose:
+            samples = gen.sample(n=5)
+            fig, _ = plot.tensors_as_images(samples.cpu(), figsize=(6,2))
+            if RTplot:
+                IPython.display.display(fig)
+            else:
+                name = run_name + '_Ep_' + str(epoch)
+                fig.savefig(out_dir + name + '.png')
+            plt.close(fig)
     
     # ================================================
     
@@ -275,10 +288,12 @@ def run_experiment_GAN(run_name, out_dir='./results', seed=42,
         fit_gen_loss.append(gen_avg_loss)
         fit_des_loss.append(dsc_avg_loss)
 
-        samples = gen.sample(5, with_grad=False)
-        fig, _ = plot.tensors_as_images(samples.cpu(), figsize=(6,2))
-        IPython.display.display(fig)
-        plt.close(fig)
+#         samples = gen.sample(5, with_grad=False)
+#         fig, _ = plot.tensors_as_images(samples.cpu(), figsize=(6,2))
+#         IPython.display.display(fig)
+#         plt.close(fig)
+        if epoch_idx % print_every == 0 or epoch_idx == epochs - 2:
+            post_epoch_fn(epoch_idx)
     
     fit_res = GANResult(epochs,fit_gen_loss,fit_des_loss)
     

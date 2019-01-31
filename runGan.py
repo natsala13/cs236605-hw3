@@ -16,6 +16,9 @@ z_dim = 128
 Epochs = 100
 lr = 0.0005
 
+data_label = 1
+label_noise = 0.3
+
 
 
 def oneExp(gen_lr,des_lr,generator_optim,dsc_optim):
@@ -26,8 +29,9 @@ def oneExp(gen_lr,des_lr,generator_optim,dsc_optim):
                                 bs_train=8, bs_test=None, batches=100, epochs=100,
                                 early_stopping=10, checkpoints=None,print_every=100,
                                 # Model params
-                                h_dim=256, z_dim=128, gen_lr, des_lr, generator_optim,
-                                 dsc_optim, data_label, label_noise)
+                                h_dim=256, z_dim=128, gen_lr=gen_lr, des_lr=des_lr, 
+                                 generator_optim=generator_optim,
+                                 dsc_optim=dsc_optim, data_label, label_noise)
         AllResults[name] = res
     except OSError as e:
         AllResults[name] = 'Failed... ' + str(e)

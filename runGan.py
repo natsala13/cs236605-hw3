@@ -43,7 +43,7 @@ def oneExp(gen_lr,des_lr,generator_optim,dsc_optim):
 
 for gen_lr in [0.0008,0.0005,0.0001]:
     for des_lr in [0.0008,0.0005,0.0001]:
-        for generator_optim in ['Adam','SGD']:
+        for generator_optim in ['SGD','Adam']:
             for dsc_optim in ['SGD', 'Adam']:
                 oneExp(gen_lr,des_lr,generator_optim,dsc_optim)
             

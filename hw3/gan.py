@@ -241,26 +241,30 @@ def train_batch(dsc_model: Discriminator, gen_model: Generator,
     
     train_gen = torch.normal(torch.zeros(1),1)
     
-    if (train_gen > 0):
+
     
-        # Set params for training the Generator
-        dsc_model.train(mode=False)
-        gen_model.train(mode=True)    
-        gen_optimizer.zero_grad()
-
-        # Generate new data using Generator
-        x_fake = gen_model.sample(N, with_grad=True)
-
-        # Calculate scores for both real and fake images
-        real_prob = dsc_model(x_data)
-        fake_prob = dsc_model(x_fake)
-
-        # Calculate loss
-        gen_loss = gen_loss_fn(fake_prob)
-
+    # Set params for training the Generator
+    dsc_model.train(mode=False)
+    gen_model.train(mode=True)    
+    gen_optimizer.zero_grad()
+    
+    # Generate new data using Generator
+    x_fake = gen_model.sample(N, with_grad=True)
+    
+    # Calculate scores for both real and fake images
+    real_prob = dsc_model(x_data)
+    fake_prob = dsc_model(x_fake)
+    
+    # Calculate loss
+    gen_loss = gen_loss_fn(fake_prob)
+    
+    
+    
+    if (train_gen > 0):
         # Train
         gen_loss.backward()
         gen_optimizer.step()
+    
     
 
     # Finally set both model's training off

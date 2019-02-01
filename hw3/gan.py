@@ -260,7 +260,7 @@ def train_batch(dsc_model: Discriminator, gen_model: Generator,
     
     
     
-    if (train_gen > 0):
+    if (train_gen > -0.5):
         # Train
         gen_loss.backward()
         gen_optimizer.step()

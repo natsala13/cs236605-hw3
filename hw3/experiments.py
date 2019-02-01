@@ -337,12 +337,12 @@ def save_experiment(run_name, out_dir, config, fit_res):
     print(f'*** Output file {output_filename} written')
 
 
-def load_experiment(filename):
+def load_experiment(filename, resultClass=FitResult):
     with open(filename, 'r') as f:
         output = json.load(f)
 
 
-    fit_res = FitResult(**output['results'])
+    fit_res = resultClass(**output['results'])
 
     return None, fit_res
 

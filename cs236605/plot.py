@@ -3,7 +3,7 @@ import itertools
 
 import numpy as np
 import matplotlib.pyplot as plt
-from .train_results import FitResult
+from .train_results import FitResult, GANResult
 
 
 def tensors_as_images(tensors, nrows=1, figsize=(8, 8), titles=[],
@@ -123,3 +123,52 @@ def plot_fit(fit_res: FitResult, fig=None, log_loss=False, legend=None):
             ax.legend()
 
     return fig, axes
+
+
+
+
+
+def plot_fit_GAN(fit_res: GANResult, fig=None, log_loss=False, legend=None):
+    """
+    Plots a FitResult object.
+    Creates four plots: train loss, test loss, train acc, test acc.
+    :param fit_res: The fit result to plot.
+    :param fig: A figure previously returned from this function. If not None,
+        plots will the added to this figure.
+    :param log_loss: Whether to plot the losses in log scale.
+    :param legend: What to call this FitResult in the legend.
+    :return: The figure.
+    """
+    if fig is None:
+        fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(16, 10),
+                                 sharex='col', sharey=False)
+        axes = axes.reshape(-1)
+    else:
+        axes = fig.axes
+
+    for ax in axes:
+        for line in ax.lines:
+            if line.get_label() == legend:
+                line.remove()
+            
+            
+    ax = axes[0]
+    attr = 'Generator_loss'
+    data = fit_res.generator_loss
+    h = ax.plot(np.arange(1, len(data) + 1), data, label=legend)
+    ax.set_title(attr)
+    ax.set_xlabel('Epochs #')
+    ax.set_ylabel('Generator Loss')
+        
+        
+        
+    ax = axes[1]
+    attr = 'Descriminaror_loss'
+    data = fit_res.descriminator_loss
+    h = ax.plot(np.arange(1, len(data) + 1), data, label=legend)
+    ax.set_title(attr)
+    ax.set_xlabel('Epochs #')
+    ax.set_ylabel('Descriminaror Loss')
+        
+    return fig, axes
+

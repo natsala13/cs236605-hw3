@@ -89,10 +89,18 @@ def part2_vae_hyperparams():
     # ====== YOUR CODE: ======
     batch_size = 32
     h_dim = 256
-    z_dim = 5
-    x_sigma2 = 0.9
-    learn_rate = 0.001
-    betas = (0.1,0.1)
+    z_dim = 64
+    x_sigma2 = 0.8
+    learn_rate = 0.0005
+    betas = (0.5,0.5)
+    
+#     bs = 32
+# h_dim = 256
+# z_dim = 64
+# Epochs = 100
+# lr = 0.0005
+# s = 0.8
+# betas = (0.5,0.5)
     
     
     hypers = dict(

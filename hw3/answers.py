@@ -169,7 +169,7 @@ What does it mean if the discriminator loss remains at a constant value while th
 1) When training a GAN we should not stop training based on the fact that the Generator loss is low since the if the Discriminator loss is high, it means the descriminator is not credible. Since the low loss of the Generator only means that the descriminator cant identify real and fakes images and the discriminator is not well traind we cannot trust the Generator loss and so should not stop the training.
 
 
-2) 
+2) Since the Generator loss is decreassing it means the Generator is being better so it produces images closer to real ones, so the Discriminator would have more trouble distinguishing between them and it would probably make decision rules that could affect the classifications of real ones
 
 
 """

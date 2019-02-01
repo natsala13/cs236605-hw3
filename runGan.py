@@ -5,8 +5,8 @@ from hw3.experiments import run_experiment_GAN
 # from hw3.autoencoder import AutoEncoderError 
 import numpy as np
      
-Init_Name = 'Gan_First_Run'
-OUTDIR = './results/Res5/'
+Init_Name = 'Gan_Tain_1outof2'
+OUTDIR = './results/Res7/'
 
 AllResults = {}
 

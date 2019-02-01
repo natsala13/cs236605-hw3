@@ -1,9 +1,0 @@
-cpu-bind=MASK - rishon3, task  0  0 [15290]: mask 0x100000001 set
-cpu-bind=MASK - rishon3, task  0  0 [15290]: mask 0x100000001 set
-*** SLURM BATCH JOB 'test_job' STARTING ***
-*** Activating environment cs236605-hw ***
-Traceback (most recent call last):
-  File "runGan.py", line 24, in <module>
-    res = run_experiment_GAN(name, out_dir=OUT_DIR, seed=42,
-NameError: name 'OUT_DIR' is not defined
-*** SLURM BATCH JOB 'test_job' DONE ***

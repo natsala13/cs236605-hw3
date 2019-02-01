@@ -94,14 +94,6 @@ def part2_vae_hyperparams():
     learn_rate = 0.0005
     betas = (0.5,0.5)
     
-#     bs = 32
-# h_dim = 256
-# z_dim = 64
-# Epochs = 100
-# lr = 0.0005
-# s = 0.8
-# betas = (0.5,0.5)
-    
     
     hypers = dict(
         batch_size=batch_size,
@@ -154,10 +146,10 @@ def part3_gan_hyperparams():
     hypers['label_noise'] = 0.3
     
     hypers['discriminator_optimizer']['type'] = 'SGD'
-    hypers['discriminator_optimizer']['lr'] = 0.0001
+    hypers['discriminator_optimizer']['lr'] = 0.0005
     
     hypers['generator_optimizer']['type'] = 'SGD'
-    hypers['generator_optimizer']['lr'] = 0.0001
+    hypers['generator_optimizer']['lr'] = 0.0008
     
     # ========================
     return hypers

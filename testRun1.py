@@ -1,7 +1,7 @@
 # Lets try an experiment
 
 from hw3.answers import part2_vae_hyperparams
-from hw3.experiments import run_experiment
+from hw3.experiments import run_experiment_VAE
 from hw3.autoencoder import AutoEncoderError 
 import numpy as np
      
@@ -22,7 +22,7 @@ betas = (0.5,0.5)
 
 try:           
     name = 'without_Pooling'
-    res = run_experiment(Init_Name + name, out_dir=OUTDIR, seed=42,
+    res = run_experiment_VAE(Init_Name + name, out_dir=OUTDIR, seed=42,
                             # Training params
                             bs_train=8, bs_test=None, batches=100, epochs=Epochs,
                             early_stopping=10, checkpoints=None, lr=lr,betas=betas,print_every=10,

@@ -65,6 +65,7 @@ class Trainer(abc.ABC):
         if checkpoints is not None:
             checkpoint_filename = f'{checkpoints}.pt'
             Path(os.path.dirname(checkpoint_filename)).mkdir(exist_ok=True)
+            print('creating new dir')
             if os.path.isfile(checkpoint_filename):
                 print(f'*** Loading checkpoint file {checkpoint_filename}')
                 saved_state = torch.load(checkpoint_filename,

@@ -6,7 +6,7 @@ from hw3.experiments import run_experiment_GAN
 import numpy as np
      
 Init_Name = 'Gan_First_Run'
-OUTDIR = './results/Res4/'
+OUTDIR = './results/Res5/'
 
 AllResults = {}
 
@@ -43,8 +43,8 @@ def oneExp(gen_lr,des_lr,generator_optim,dsc_optim):
 
 for gen_lr in [0.0008,0.0005,0.0001]:
     for des_lr in [0.0008,0.0005,0.0001]:
-        for generator_optim in ['SGD', 'ADAM']:
-            for dsc_optim in ['SGD', 'ADAM']:
+        for generator_optim in ['Adam','SGD']:
+            for dsc_optim in ['SGD', 'Adam']:
                 oneExp(gen_lr,des_lr,generator_optim,dsc_optim)
             
             

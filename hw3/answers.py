@@ -108,12 +108,7 @@ part2_q1 = r"""
 **Your answer:**
 
 
-Write your answer using **markdown** and $\LaTeX$:
-```python
-# A code block
-a = 2
-```
-An equation: $e^{i\pi} -1 = 0$
+$\sigma$ acts as a regularisation strength. since our loss is composed of a Data-loss and a a distrobution-loss (KLdiv), the parameter $\sigma$ defines the strength of the Data-loss. when sigma is high, the weight of the Data-loss is smaller so the regularisation is stronger. and when sigma is low the weight of the Data-loss is much bigger so the model try to fit more to the data itself.
 
 """
 
@@ -142,7 +137,7 @@ def part3_gan_hyperparams():
     # ====== YOUR CODE: ======
     hypers['batch_size'] = 16
     hypers['z_dim'] = 128
-    hypers['data_label'] = 0
+    hypers['data_label'] = 1
     hypers['label_noise'] = 0.3
     
     hypers['discriminator_optimizer']['type'] = 'SGD'
@@ -159,25 +154,23 @@ part3_q1 = r"""
 **Your answer:**
 
 
-Write your answer using **markdown** and $\LaTeX$:
-```python
-# A code block
-a = 2
-```
-An equation: $e^{i\pi} -1 = 0$
+While training we train the descriminator once and then the generator for every batch. Thus we do not want the gnerator to train while we train the Discriminator using the Discriminator loss etc, so we don't pass backward on the sampler every time we sample for training the Discriminator.
 
 """
 
 part3_q2 = r"""
 **Your answer:**
 
+When training a GAN to generate images, should we decide to stop training solely based on the fact that the Generator loss is below some threshold? Why or why not?
 
-Write your answer using **markdown** and $\LaTeX$:
-```python
-# A code block
-a = 2
-```
-An equation: $e^{i\pi} -1 = 0$
+What does it mean if the discriminator loss remains at a constant value while the generator loss decreases?
+
+
+1) When training a GAN we should not stop training based on the fact that the Generator loss is low since the if the Discriminator loss is high, it means the descriminator is not credible. Since the low loss of the Generator only means that the descriminator cant identify real and fakes images and the discriminator is not well traind we cannot trust the Generator loss and so should not stop the training.
+
+
+2) 
+
 
 """
 

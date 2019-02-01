@@ -174,7 +174,7 @@ part3_q3 = r"""
 
 Compare the results you got when generating images with the VAE to the GAN results. What's the main difference and what's causing it?
 
-
+the main difference is that except the face we can see in the middle of the image, the image produced by the VAE are smoth all around while the images produced by the GAN are noisy all around the face in the middle. That could be caused from the fact that the GAN Generator loss is based on the success of generating images the discriminator could not classify so it could more easily look up for certain features while the rest of the image that do not contain any faces' elements is becoming less important.
 
 
 """

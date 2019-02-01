@@ -239,8 +239,6 @@ def train_batch(dsc_model: Discriminator, gen_model: Generator,
 
     N = x_data.shape[0]
     
-    train_gen = torch.normal(torch.zeros(1),1)
-    
 
     
     # Set params for training the Generator
@@ -260,10 +258,10 @@ def train_batch(dsc_model: Discriminator, gen_model: Generator,
     
     
     
-    if (train_gen > -0.5):
-        # Train
-        gen_loss.backward()
-        gen_optimizer.step()
+
+    # Train
+    gen_loss.backward()
+    gen_optimizer.step()
     
     
 
